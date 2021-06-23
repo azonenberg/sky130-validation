@@ -1,0 +1,1353 @@
+EESchema Schematic File Version 4
+LIBS:brain-cache
+EELAYER 30 0
+EELAYER END
+$Descr A3 16535 11693
+encoding utf-8
+Sheet 2 3
+Title "SKY130 Asic Validation Board"
+Date "2021-06-23"
+Rev "0.1"
+Comp "Antikernel Labs"
+Comment1 "Andrew D. Zonenberg"
+Comment2 "Power Supply"
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L power-azonenberg:BARREL_JACK J?
+U 1 1 60C941C3
+P 1000 1100
+AR Path="/60C941C3" Ref="J?"  Part="1" 
+AR Path="/60C8EDAD/60C941C3" Ref="J2"  Part="1" 
+F 0 "J2" H 883 1575 50  0000 C CNN
+F 1 "BARREL_JACK" H 883 1484 50  0000 C CNN
+F 2 "" H 1000 1100 50  0001 C CNN
+F 3 "" H 1000 1100 50  0001 C CNN
+	1    1000 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 850  1100 850 
+Wire Wire Line
+	1650 850  1550 850 
+$Comp
+L passive-azonenberg:FERRITE_SMALL2 FB?
+U 1 1 60C941CB
+P 1850 850
+AR Path="/60C941CB" Ref="FB?"  Part="1" 
+AR Path="/60C8EDAD/60C941CB" Ref="FB1"  Part="1" 
+F 0 "FB1" H 1850 1075 50  0000 C CNN
+F 1 "1A" H 1850 984 50  0000 C CNN
+F 2 "" H 1850 850 60  0000 C CNN
+F 3 "" H 1850 850 60  0000 C CNN
+	1    1850 850 
+	1    0    0    -1  
+$EndComp
+$Comp
+L power-azonenberg:FUSE_PWROUT_2 F?
+U 1 1 60C941D1
+P 1400 850
+AR Path="/60C941D1" Ref="F?"  Part="1" 
+AR Path="/60C8EDAD/60C941D1" Ref="F1"  Part="1" 
+F 0 "F1" H 1400 1064 50  0000 C CNN
+F 1 "1A" H 1400 973 50  0000 C CNN
+F 2 "" H 1475 850 60  0000 C CNN
+F 3 "" H 1475 850 60  0000 C CNN
+	1    1400 850 
+	1    0    0    -1  
+$EndComp
+NoConn ~ 1100 1050
+Text Label 2050 850  0    50   ~ 0
+5V0
+$Comp
+L power-azonenberg:ADP323 U3
+U 1 1 60C95609
+P 1600 2550
+F 0 "U3" H 1575 3297 60  0000 C CNN
+F 1 "ADP323" H 1575 3191 60  0000 C CNN
+F 2 "" H 1600 2700 60  0000 C CNN
+F 3 "" H 1600 2700 60  0000 C CNN
+	1    1600 2550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	900  2050 900  2150
+Connection ~ 900  2150
+Wire Wire Line
+	900  2150 900  2250
+$Comp
+L device:C C5
+U 1 1 60C96CE2
+P 900 3650
+F 0 "C5" H 1015 3696 50  0000 L CNN
+F 1 "4.7 uF" H 1015 3605 50  0000 L CNN
+F 2 "" H 938 3500 50  0001 C CNN
+F 3 "" H 900 3650 50  0001 C CNN
+	1    900  3650
+	1    0    0    -1  
+$EndComp
+Text Label 900  3800 2    50   ~ 0
+GND
+Text Label 900  2450 2    50   ~ 0
+5V0
+Wire Wire Line
+	900  2450 900  2550
+$Comp
+L device:C C13
+U 1 1 60C9756A
+P 1600 3650
+F 0 "C13" H 1715 3696 50  0000 L CNN
+F 1 "4.7 uF" H 1715 3605 50  0000 L CNN
+F 2 "" H 1638 3500 50  0001 C CNN
+F 3 "" H 1600 3650 50  0001 C CNN
+	1    1600 3650
+	1    0    0    -1  
+$EndComp
+Text Label 1600 3500 2    50   ~ 0
+5V0
+Text Label 900  3000 2    50   ~ 0
+GND
+Wire Wire Line
+	900  3000 900  3100
+Wire Wire Line
+	900  3800 1600 3800
+Text Label 900  4000 2    50   ~ 0
+1V0
+$Comp
+L device:C C6
+U 1 1 60C981A5
+P 900 4150
+F 0 "C6" H 1015 4196 50  0000 L CNN
+F 1 "4.7 uF" H 1015 4105 50  0000 L CNN
+F 2 "" H 938 4000 50  0001 C CNN
+F 3 "" H 900 4150 50  0001 C CNN
+	1    900  4150
+	1    0    0    -1  
+$EndComp
+Text Label 900  4300 2    50   ~ 0
+GND
+Text Label 1600 4000 2    50   ~ 0
+1V8
+$Comp
+L device:C C14
+U 1 1 60C98890
+P 1600 4150
+F 0 "C14" H 1715 4196 50  0000 L CNN
+F 1 "4.7 uF" H 1715 4105 50  0000 L CNN
+F 2 "" H 1638 4000 50  0001 C CNN
+F 3 "" H 1600 4150 50  0001 C CNN
+	1    1600 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 4300 900  4300
+Text Label 2200 4000 2    50   ~ 0
+3V3
+$Comp
+L device:C C20
+U 1 1 60C98EF2
+P 2200 4150
+F 0 "C20" H 2315 4196 50  0000 L CNN
+F 1 "4.7 uF" H 2315 4105 50  0000 L CNN
+F 2 "" H 2238 4000 50  0001 C CNN
+F 3 "" H 2200 4150 50  0001 C CNN
+	1    2200 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2200 4300 1600 4300
+Connection ~ 1600 4300
+Text Notes 650  1200 0    50   ~ 0
+DC POWER INPUT
+Text Notes 1100 3300 0    50   ~ 0
+CONTROL BOARD POWER SUPPLY
+$Comp
+L xilinx-azonenberg:XC7Sx-FTGB196 U?
+U 1 1 60CB609F
+P 13900 6050
+AR Path="/60CA3D46/60CB609F" Ref="U?"  Part="1" 
+AR Path="/60C8EDAD/60CB609F" Ref="U2"  Part="1" 
+F 0 "U2" H 14650 11425 50  0000 C CNN
+F 1 "XC7S15-1FTGB196C" H 14650 11334 50  0000 C CNN
+F 2 "" H 13900 6050 50  0001 C CNN
+F 3 "" H 13900 6050 50  0001 C CNN
+	1    13900 6050
+	1    0    0    -1  
+$EndComp
+Text Notes 13900 6150 0    50   ~ 0
+Can sub XC7S6 to reduce BOM cost
+$Comp
+L st-azonenberg:STM32F031-QFN28 U?
+U 1 1 60CB8197
+P 1450 5950
+AR Path="/60C9CACB/60CB8197" Ref="U?"  Part="1" 
+AR Path="/60C8EDAD/60CB8197" Ref="U1"  Part="1" 
+F 0 "U1" H 1692 7025 50  0000 C CNN
+F 1 "STM32F031-QFN28" H 1692 6934 50  0000 C CNN
+F 2 "" H 1450 5950 50  0001 C CNN
+F 3 "" H 1450 5950 50  0001 C CNN
+	1    1450 5950
+	-1   0    0    -1  
+$EndComp
+Text Label 1800 5100 0    50   ~ 0
+3V3
+Wire Wire Line
+	1800 5100 1550 5100
+Wire Wire Line
+	1550 5100 1550 5200
+Connection ~ 1550 5100
+Text Label 1550 5300 0    50   ~ 0
+GND
+$Comp
+L device:C C34
+U 1 1 60CBACA3
+P 850 6350
+F 0 "C34" H 965 6396 50  0000 L CNN
+F 1 "4.7 uF" H 965 6305 50  0000 L CNN
+F 2 "" H 888 6200 50  0001 C CNN
+F 3 "" H 850 6350 50  0001 C CNN
+	1    850  6350
+	1    0    0    -1  
+$EndComp
+NoConn ~ 1550 5900
+NoConn ~ 1550 5800
+$Comp
+L device:C C35
+U 1 1 60CBBDA4
+P 1450 6350
+F 0 "C35" H 1565 6396 50  0000 L CNN
+F 1 "0.47 uF" H 1565 6305 50  0000 L CNN
+F 2 "" H 1488 6200 50  0001 C CNN
+F 3 "" H 1450 6350 50  0001 C CNN
+	1    1450 6350
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C36
+U 1 1 60CBC170
+P 2050 6350
+F 0 "C36" H 2165 6396 50  0000 L CNN
+F 1 "0.47 uF" H 2165 6305 50  0000 L CNN
+F 2 "" H 2088 6200 50  0001 C CNN
+F 3 "" H 2050 6350 50  0001 C CNN
+	1    2050 6350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2050 6200 1450 6200
+Connection ~ 1450 6200
+Wire Wire Line
+	1450 6200 850  6200
+Text Label 850  6200 2    50   ~ 0
+3V3
+Text Label 850  6500 2    50   ~ 0
+GND
+Text Label 15600 900  0    50   ~ 0
+GND
+Wire Wire Line
+	15600 900  15600 1100
+Connection ~ 15600 1100
+Wire Wire Line
+	15600 1100 15600 1200
+Connection ~ 15600 1200
+Wire Wire Line
+	15600 1200 15600 1300
+Connection ~ 15600 1300
+Wire Wire Line
+	15600 1300 15600 1400
+Connection ~ 15600 1400
+Wire Wire Line
+	15600 1400 15600 1500
+Connection ~ 15600 1500
+Wire Wire Line
+	15600 1500 15600 1600
+Connection ~ 15600 1600
+Wire Wire Line
+	15600 1600 15600 1700
+Connection ~ 15600 1700
+Wire Wire Line
+	15600 1700 15600 1800
+Connection ~ 15600 1800
+Wire Wire Line
+	15600 1800 15600 1900
+Connection ~ 15600 1900
+Wire Wire Line
+	15600 1900 15600 2000
+Connection ~ 15600 2000
+Wire Wire Line
+	15600 2000 15600 2100
+Connection ~ 15600 2100
+Wire Wire Line
+	15600 2100 15600 2200
+Connection ~ 15600 2200
+Wire Wire Line
+	15600 2200 15600 2300
+Connection ~ 15600 2300
+Wire Wire Line
+	15600 2300 15600 2400
+Connection ~ 15600 2400
+Wire Wire Line
+	15600 2400 15600 2500
+Connection ~ 15600 2500
+Wire Wire Line
+	15600 2500 15600 2600
+Connection ~ 15600 2600
+Wire Wire Line
+	15600 2600 15600 2700
+Connection ~ 15600 2700
+Wire Wire Line
+	15600 2700 15600 2800
+Connection ~ 15600 2800
+Wire Wire Line
+	15600 2800 15600 2900
+Connection ~ 15600 2900
+Wire Wire Line
+	15600 2900 15600 3000
+Connection ~ 15600 3000
+Wire Wire Line
+	15600 3000 15600 3100
+Connection ~ 15600 3100
+Wire Wire Line
+	15600 3100 15600 3200
+Connection ~ 15600 3200
+Wire Wire Line
+	15600 3200 15600 3300
+Connection ~ 15600 3300
+Wire Wire Line
+	15600 3300 15600 3400
+Connection ~ 15600 3400
+Wire Wire Line
+	15600 3400 15600 3500
+Connection ~ 15600 3500
+Wire Wire Line
+	15600 3500 15600 3600
+Connection ~ 15600 3600
+Wire Wire Line
+	15600 3600 15600 3700
+Connection ~ 15600 3700
+Wire Wire Line
+	15600 3700 15600 3800
+Connection ~ 15600 3800
+Wire Wire Line
+	15600 3800 15600 3900
+Connection ~ 15600 3900
+Wire Wire Line
+	15600 3900 15600 4000
+Connection ~ 15600 4000
+Wire Wire Line
+	15600 4000 15600 4100
+Connection ~ 15600 4100
+Wire Wire Line
+	15600 4100 15600 4200
+Connection ~ 15600 4200
+Wire Wire Line
+	15600 4200 15600 4300
+Connection ~ 15600 4300
+Wire Wire Line
+	15600 4300 15600 4400
+Connection ~ 15600 4400
+Wire Wire Line
+	15600 4400 15600 4500
+Connection ~ 15600 4500
+Wire Wire Line
+	15600 4500 15600 4600
+Connection ~ 15600 4600
+Wire Wire Line
+	15600 4600 15600 4700
+Connection ~ 15600 4700
+Wire Wire Line
+	15600 4700 15600 4800
+Connection ~ 15600 4800
+Wire Wire Line
+	15600 4800 15600 4900
+Connection ~ 15600 4900
+Wire Wire Line
+	15600 4900 15600 5000
+Connection ~ 15600 5000
+Wire Wire Line
+	15600 5000 15600 5100
+Connection ~ 15600 5100
+Wire Wire Line
+	15600 5100 15600 5200
+Connection ~ 15600 5200
+Wire Wire Line
+	15600 5200 15600 5300
+Connection ~ 15600 5300
+Wire Wire Line
+	15600 5300 15600 5400
+Connection ~ 15600 5400
+Wire Wire Line
+	15600 5400 15600 5500
+Connection ~ 15600 5500
+Wire Wire Line
+	15600 5500 15600 5600
+Connection ~ 15600 5600
+Wire Wire Line
+	15600 5600 15600 5700
+Connection ~ 15600 5700
+Wire Wire Line
+	15600 5700 15600 5800
+Connection ~ 15600 5800
+Wire Wire Line
+	15600 5800 15600 5900
+Connection ~ 15600 5900
+Wire Wire Line
+	15600 5900 15600 6000
+Text HLabel 2900 2050 2    50   Output ~ 0
+1V0
+Text HLabel 1100 950  2    50   Output ~ 0
+GND
+$Comp
+L device:R R1
+U 1 1 60CD5F39
+P 2600 2150
+F 0 "R1" V 2550 2350 50  0000 C CNN
+F 1 "100K" V 2600 2150 50  0000 C CNN
+F 2 "" V 2530 2150 50  0001 C CNN
+F 3 "" H 2600 2150 50  0001 C CNN
+	1    2600 2150
+	0    1    1    0   
+$EndComp
+$Comp
+L device:R R2
+U 1 1 60CD6F6B
+P 2600 2250
+F 0 "R2" V 2550 2450 50  0000 C CNN
+F 1 "100K" V 2600 2250 50  0000 C CNN
+F 2 "" V 2530 2250 50  0001 C CNN
+F 3 "" H 2600 2250 50  0001 C CNN
+	1    2600 2250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2250 2150 2450 2150
+Wire Wire Line
+	2450 2150 2450 2250
+Connection ~ 2450 2150
+Text Label 2950 2250 0    50   ~ 0
+GND
+Wire Wire Line
+	2750 2250 2950 2250
+Wire Wire Line
+	2900 2050 2750 2050
+Wire Wire Line
+	2750 2150 2750 2050
+Connection ~ 2750 2050
+Wire Wire Line
+	2750 2050 2250 2050
+Text Notes 2450 3500 0    50   ~ 0
+Vout = 0.5 * (1 + Rhi/Rlo)\nRhi < 200 kR\n\n1V0: Rhi/Rlo = 1.0\n1V8: Rhi/Rlo = 2.6\n3V3: Rhi/Rlo = 5.6
+Text HLabel 2900 2350 2    50   Output ~ 0
+1V8
+$Comp
+L device:R R3
+U 1 1 60CDE315
+P 2600 2450
+F 0 "R3" V 2550 2650 50  0000 C CNN
+F 1 "130K" V 2600 2450 50  0000 C CNN
+F 2 "" V 2530 2450 50  0001 C CNN
+F 3 "" H 2600 2450 50  0001 C CNN
+	1    2600 2450
+	0    1    1    0   
+$EndComp
+$Comp
+L device:R R4
+U 1 1 60CDE31F
+P 2600 2550
+F 0 "R4" V 2550 2750 50  0000 C CNN
+F 1 "50K" V 2600 2550 50  0000 C CNN
+F 2 "" V 2530 2550 50  0001 C CNN
+F 3 "" H 2600 2550 50  0001 C CNN
+	1    2600 2550
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2250 2450 2450 2450
+Wire Wire Line
+	2450 2450 2450 2550
+Connection ~ 2450 2450
+Text Label 2950 2550 0    50   ~ 0
+GND
+Wire Wire Line
+	2750 2550 2950 2550
+Wire Wire Line
+	2900 2350 2750 2350
+Wire Wire Line
+	2750 2450 2750 2350
+Connection ~ 2750 2350
+Wire Wire Line
+	2750 2350 2250 2350
+Text HLabel 2900 2650 2    50   Output ~ 0
+3V3
+$Comp
+L device:R R5
+U 1 1 60CE0566
+P 2600 2750
+F 0 "R5" V 2550 2950 50  0000 C CNN
+F 1 "185K" V 2600 2750 50  0000 C CNN
+F 2 "" V 2530 2750 50  0001 C CNN
+F 3 "" H 2600 2750 50  0001 C CNN
+	1    2600 2750
+	0    1    1    0   
+$EndComp
+$Comp
+L device:R R6
+U 1 1 60CE0570
+P 2600 2850
+F 0 "R6" V 2550 3050 50  0000 C CNN
+F 1 "33K" V 2600 2850 50  0000 C CNN
+F 2 "" V 2530 2850 50  0001 C CNN
+F 3 "" H 2600 2850 50  0001 C CNN
+	1    2600 2850
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2250 2750 2450 2750
+Wire Wire Line
+	2450 2750 2450 2850
+Connection ~ 2450 2750
+Text Label 2950 2850 0    50   ~ 0
+GND
+Wire Wire Line
+	2750 2850 2950 2850
+Wire Wire Line
+	2900 2650 2750 2650
+Wire Wire Line
+	2750 2750 2750 2650
+Connection ~ 2750 2650
+Wire Wire Line
+	2750 2650 2250 2650
+Text Notes 1900 1950 0    50   ~ 0
+TODO: tune resistor values to be standard
+$Comp
+L Connector:Conn_Coaxial TP1
+U 1 1 60CE4433
+P 14100 9550
+F 0 "TP1" H 14053 9788 50  0000 C CNN
+F 1 "U.FL" H 14053 9697 50  0000 C CNN
+F 2 "" H 14100 9550 50  0001 C CNN
+F 3 "" H 14100 9550 50  0001 C CNN
+	1    14100 9550
+	-1   0    0    -1  
+$EndComp
+Text Label 14100 9750 0    50   ~ 0
+GND
+Text Label 14250 9550 0    50   ~ 0
+5V0
+$Comp
+L Connector:Conn_Coaxial TP3
+U 1 1 60CE6D3F
+P 15100 9550
+F 0 "TP3" H 15053 9788 50  0000 C CNN
+F 1 "U.FL" H 15053 9697 50  0000 C CNN
+F 2 "" H 15100 9550 50  0001 C CNN
+F 3 "" H 15100 9550 50  0001 C CNN
+	1    15100 9550
+	-1   0    0    -1  
+$EndComp
+Text Label 15100 9750 0    50   ~ 0
+GND
+Text Label 15250 9550 0    50   ~ 0
+3V3
+$Comp
+L Connector:Conn_Coaxial TP2
+U 1 1 60CE935E
+P 14600 9550
+F 0 "TP2" H 14553 9788 50  0000 C CNN
+F 1 "U.FL" H 14553 9697 50  0000 C CNN
+F 2 "" H 14600 9550 50  0001 C CNN
+F 3 "" H 14600 9550 50  0001 C CNN
+	1    14600 9550
+	-1   0    0    -1  
+$EndComp
+Text Label 14600 9750 0    50   ~ 0
+GND
+Text Label 14750 9550 0    50   ~ 0
+1V8
+$Comp
+L Connector:Conn_Coaxial TP4
+U 1 1 60CE936A
+P 15600 9550
+F 0 "TP4" H 15553 9788 50  0000 C CNN
+F 1 "U.FL" H 15553 9697 50  0000 C CNN
+F 2 "" H 15600 9550 50  0001 C CNN
+F 3 "" H 15600 9550 50  0001 C CNN
+	1    15600 9550
+	-1   0    0    -1  
+$EndComp
+Text Label 15600 9750 0    50   ~ 0
+GND
+Text Label 15750 9550 0    50   ~ 0
+1V0
+Text Label 13700 3300 2    50   ~ 0
+3V3
+Wire Wire Line
+	13700 3300 13700 3400
+Connection ~ 13700 3400
+Wire Wire Line
+	13700 3400 13700 3600
+Connection ~ 13700 3600
+Wire Wire Line
+	13700 3600 13700 3700
+Connection ~ 13700 3700
+Wire Wire Line
+	13700 3700 13700 3800
+Connection ~ 13700 3800
+Wire Wire Line
+	13700 3800 13700 4000
+Connection ~ 13700 4000
+Wire Wire Line
+	13700 4000 13700 4100
+Connection ~ 13700 4100
+Wire Wire Line
+	13700 4100 13700 4200
+Text Label 13700 2800 2    50   ~ 0
+1V8
+Wire Wire Line
+	13700 2800 13700 2900
+Connection ~ 13700 2900
+Wire Wire Line
+	13700 2900 13700 3000
+Connection ~ 13700 3000
+Wire Wire Line
+	13700 3000 13700 3100
+Text Label 13700 1300 2    50   ~ 0
+1V0
+Wire Wire Line
+	13700 1300 13700 1400
+Connection ~ 13700 1400
+Wire Wire Line
+	13700 1400 13700 1500
+Connection ~ 13700 1500
+Wire Wire Line
+	13700 1500 13700 1600
+Connection ~ 13700 1600
+Wire Wire Line
+	13700 1600 13700 1700
+Connection ~ 13700 1700
+Wire Wire Line
+	13700 1700 13700 1800
+Connection ~ 13700 1800
+Wire Wire Line
+	13700 1800 13700 1900
+Connection ~ 13700 1900
+Wire Wire Line
+	13700 1900 13700 2000
+Connection ~ 13700 2000
+Wire Wire Line
+	13700 2000 13700 2100
+Connection ~ 13700 2100
+Wire Wire Line
+	13700 2100 13700 2200
+Connection ~ 13700 2200
+Wire Wire Line
+	13700 2200 13700 2400
+Connection ~ 13700 2400
+Wire Wire Line
+	13700 2400 13700 2500
+Connection ~ 13700 2500
+Wire Wire Line
+	13700 2500 13700 2600
+Text Label 13700 900  2    50   ~ 0
+1V8
+Text Label 13700 1100 2    50   ~ 0
+1V8
+Text Notes 14050 9200 0    50   ~ 0
+Power rail test points for RP4030
+Text Notes 800  7850 0    50   ~ 0
+FPGA decoupling assumes XC7S15\nIf loading XC7S6, can DNP C15 and C26\nXC7S25/50 need more caps and are not\ncompatible with this layout.
+$Comp
+L device:C C1
+U 1 1 60CFD8E9
+P 800 8100
+F 0 "C1" H 915 8146 50  0000 L CNN
+F 1 "100 uF" H 915 8055 50  0000 L CNN
+F 2 "" H 838 7950 50  0001 C CNN
+F 3 "" H 800 8100 50  0001 C CNN
+	1    800  8100
+	1    0    0    -1  
+$EndComp
+Text Label 800  7950 2    50   ~ 0
+1V0
+Text Label 800  8250 2    50   ~ 0
+GND
+$Comp
+L device:C C7
+U 1 1 60CFE5E0
+P 1300 8100
+F 0 "C7" H 1415 8146 50  0000 L CNN
+F 1 "4.7 uF" H 1415 8055 50  0000 L CNN
+F 2 "" H 1338 7950 50  0001 C CNN
+F 3 "" H 1300 8100 50  0001 C CNN
+	1    1300 8100
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C15
+U 1 1 60CFED0B
+P 1800 8100
+F 0 "C15" H 1915 8146 50  0000 L CNN
+F 1 "4.7 uF" H 1915 8055 50  0000 L CNN
+F 2 "" H 1838 7950 50  0001 C CNN
+F 3 "" H 1800 8100 50  0001 C CNN
+	1    1800 8100
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C21
+U 1 1 60CFF35D
+P 2300 8100
+F 0 "C21" H 2415 8146 50  0000 L CNN
+F 1 "0.47 uF" H 2415 8055 50  0000 L CNN
+F 2 "" H 2338 7950 50  0001 C CNN
+F 3 "" H 2300 8100 50  0001 C CNN
+	1    2300 8100
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C26
+U 1 1 60CFF5BB
+P 2850 8100
+F 0 "C26" H 2965 8146 50  0000 L CNN
+F 1 "0.47 uF" H 2965 8055 50  0000 L CNN
+F 2 "" H 2888 7950 50  0001 C CNN
+F 3 "" H 2850 8100 50  0001 C CNN
+	1    2850 8100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	800  8250 1300 8250
+Connection ~ 1300 8250
+Wire Wire Line
+	1300 8250 1800 8250
+Connection ~ 1800 8250
+Wire Wire Line
+	1800 8250 2300 8250
+Connection ~ 2300 8250
+Wire Wire Line
+	2300 8250 2850 8250
+Wire Wire Line
+	2850 7950 2300 7950
+Connection ~ 1300 7950
+Wire Wire Line
+	1300 7950 800  7950
+Connection ~ 1800 7950
+Wire Wire Line
+	1800 7950 1300 7950
+Connection ~ 2300 7950
+Wire Wire Line
+	2300 7950 1800 7950
+Text Notes 800  8350 0    50   ~ 0
+VCCINT
+$Comp
+L device:C C2
+U 1 1 60D089E3
+P 800 8600
+F 0 "C2" H 915 8646 50  0000 L CNN
+F 1 "4.7 uF" H 915 8555 50  0000 L CNN
+F 2 "" H 838 8450 50  0001 C CNN
+F 3 "" H 800 8600 50  0001 C CNN
+	1    800  8600
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C8
+U 1 1 60D08E8B
+P 1300 8600
+F 0 "C8" H 1415 8646 50  0000 L CNN
+F 1 "0.47 uF" H 1415 8555 50  0000 L CNN
+F 2 "" H 1338 8450 50  0001 C CNN
+F 3 "" H 1300 8600 50  0001 C CNN
+	1    1300 8600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1300 8450 800  8450
+Text Notes 800  8850 0    50   ~ 0
+VCCBRAM
+Text Label 800  8750 2    50   ~ 0
+GND
+Wire Wire Line
+	800  8750 1300 8750
+Text Label 800  8450 2    50   ~ 0
+1V0
+Wire Wire Line
+	2050 6500 1450 6500
+Connection ~ 1450 6500
+Wire Wire Line
+	1450 6500 850  6500
+Text Notes 850  6600 0    50   ~ 0
+MCU decoupling
+Text Label 800  9000 2    50   ~ 0
+1V8
+$Comp
+L device:C C3
+U 1 1 60D4840F
+P 800 9150
+F 0 "C3" H 915 9196 50  0000 L CNN
+F 1 "47 uF" H 915 9105 50  0000 L CNN
+F 2 "" H 838 9000 50  0001 C CNN
+F 3 "" H 800 9150 50  0001 C CNN
+	1    800  9150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C9
+U 1 1 60D4867F
+P 1300 9150
+F 0 "C9" H 1415 9196 50  0000 L CNN
+F 1 "4.7 uF" H 1415 9105 50  0000 L CNN
+F 2 "" H 1338 9000 50  0001 C CNN
+F 3 "" H 1300 9150 50  0001 C CNN
+	1    1300 9150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C16
+U 1 1 60D48C92
+P 1800 9150
+F 0 "C16" H 1915 9196 50  0000 L CNN
+F 1 "0.47 uF" H 1915 9105 50  0000 L CNN
+F 2 "" H 1838 9000 50  0001 C CNN
+F 3 "" H 1800 9150 50  0001 C CNN
+	1    1800 9150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C22
+U 1 1 60D49034
+P 2350 9150
+F 0 "C22" H 2465 9196 50  0000 L CNN
+F 1 "0.47 uF" H 2465 9105 50  0000 L CNN
+F 2 "" H 2388 9000 50  0001 C CNN
+F 3 "" H 2350 9150 50  0001 C CNN
+	1    2350 9150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2350 9000 1800 9000
+Connection ~ 1300 9000
+Wire Wire Line
+	1300 9000 800  9000
+Connection ~ 1800 9000
+Wire Wire Line
+	1800 9000 1300 9000
+Wire Wire Line
+	800  9300 1300 9300
+Connection ~ 1300 9300
+Wire Wire Line
+	1300 9300 1800 9300
+Connection ~ 1800 9300
+Wire Wire Line
+	1800 9300 2350 9300
+Text Notes 800  9400 0    50   ~ 0
+VCCAUX
+$Comp
+L device:C C4
+U 1 1 60D52775
+P 800 9650
+F 0 "C4" H 915 9696 50  0000 L CNN
+F 1 "100 uF" H 915 9605 50  0000 L CNN
+F 2 "" H 838 9500 50  0001 C CNN
+F 3 "" H 800 9650 50  0001 C CNN
+	1    800  9650
+	1    0    0    -1  
+$EndComp
+Text Label 800  9500 2    50   ~ 0
+3V3
+$Comp
+L device:C C10
+U 1 1 60D53116
+P 1300 9650
+F 0 "C10" H 1415 9696 50  0000 L CNN
+F 1 "4.7 uF" H 1415 9605 50  0000 L CNN
+F 2 "" H 1338 9500 50  0001 C CNN
+F 3 "" H 1300 9650 50  0001 C CNN
+	1    1300 9650
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C17
+U 1 1 60D5394A
+P 1800 9650
+F 0 "C17" H 1915 9696 50  0000 L CNN
+F 1 "4.7 uF" H 1915 9605 50  0000 L CNN
+F 2 "" H 1838 9500 50  0001 C CNN
+F 3 "" H 1800 9650 50  0001 C CNN
+	1    1800 9650
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C23
+U 1 1 60D53D80
+P 2350 9650
+F 0 "C23" H 2465 9696 50  0000 L CNN
+F 1 "0.47 uF" H 2465 9605 50  0000 L CNN
+F 2 "" H 2388 9500 50  0001 C CNN
+F 3 "" H 2350 9650 50  0001 C CNN
+	1    2350 9650
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C27
+U 1 1 60D54100
+P 2900 9650
+F 0 "C27" H 3015 9696 50  0000 L CNN
+F 1 "0.47 uF" H 3015 9605 50  0000 L CNN
+F 2 "" H 2938 9500 50  0001 C CNN
+F 3 "" H 2900 9650 50  0001 C CNN
+	1    2900 9650
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C30
+U 1 1 60D546A1
+P 3450 9650
+F 0 "C30" H 3565 9696 50  0000 L CNN
+F 1 "0.47 uF" H 3565 9605 50  0000 L CNN
+F 2 "" H 3488 9500 50  0001 C CNN
+F 3 "" H 3450 9650 50  0001 C CNN
+	1    3450 9650
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C32
+U 1 1 60D549EA
+P 4000 9650
+F 0 "C32" H 4115 9696 50  0000 L CNN
+F 1 "0.47 uF" H 4115 9605 50  0000 L CNN
+F 2 "" H 4038 9500 50  0001 C CNN
+F 3 "" H 4000 9650 50  0001 C CNN
+	1    4000 9650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4000 9500 3450 9500
+Connection ~ 1300 9500
+Wire Wire Line
+	1300 9500 800  9500
+Connection ~ 1800 9500
+Wire Wire Line
+	1800 9500 1300 9500
+Connection ~ 2350 9500
+Wire Wire Line
+	2350 9500 1800 9500
+Connection ~ 2900 9500
+Wire Wire Line
+	2900 9500 2350 9500
+Connection ~ 3450 9500
+Wire Wire Line
+	3450 9500 2900 9500
+Wire Wire Line
+	4000 9800 3450 9800
+Connection ~ 1300 9800
+Wire Wire Line
+	1300 9800 800  9800
+Connection ~ 1800 9800
+Wire Wire Line
+	1800 9800 1300 9800
+Connection ~ 2350 9800
+Wire Wire Line
+	2350 9800 1800 9800
+Connection ~ 2900 9800
+Wire Wire Line
+	2900 9800 2350 9800
+Connection ~ 3450 9800
+Wire Wire Line
+	3450 9800 2900 9800
+Text Notes 800  9900 0    50   ~ 0
+VCCO bank 14
+Text Label 800  10000 2    50   ~ 0
+3V3
+$Comp
+L device:C C11
+U 1 1 60D5F815
+P 1300 10150
+F 0 "C11" H 1415 10196 50  0000 L CNN
+F 1 "4.7 uF" H 1415 10105 50  0000 L CNN
+F 2 "" H 1338 10000 50  0001 C CNN
+F 3 "" H 1300 10150 50  0001 C CNN
+	1    1300 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C18
+U 1 1 60D5F81F
+P 1800 10150
+F 0 "C18" H 1915 10196 50  0000 L CNN
+F 1 "4.7 uF" H 1915 10105 50  0000 L CNN
+F 2 "" H 1838 10000 50  0001 C CNN
+F 3 "" H 1800 10150 50  0001 C CNN
+	1    1800 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C24
+U 1 1 60D5F829
+P 2350 10150
+F 0 "C24" H 2465 10196 50  0000 L CNN
+F 1 "0.47 uF" H 2465 10105 50  0000 L CNN
+F 2 "" H 2388 10000 50  0001 C CNN
+F 3 "" H 2350 10150 50  0001 C CNN
+	1    2350 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C28
+U 1 1 60D5F833
+P 2900 10150
+F 0 "C28" H 3015 10196 50  0000 L CNN
+F 1 "0.47 uF" H 3015 10105 50  0000 L CNN
+F 2 "" H 2938 10000 50  0001 C CNN
+F 3 "" H 2900 10150 50  0001 C CNN
+	1    2900 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C31
+U 1 1 60D5F83D
+P 3450 10150
+F 0 "C31" H 3565 10196 50  0000 L CNN
+F 1 "0.47 uF" H 3565 10105 50  0000 L CNN
+F 2 "" H 3488 10000 50  0001 C CNN
+F 3 "" H 3450 10150 50  0001 C CNN
+	1    3450 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C33
+U 1 1 60D5F847
+P 4000 10150
+F 0 "C33" H 4115 10196 50  0000 L CNN
+F 1 "0.47 uF" H 4115 10105 50  0000 L CNN
+F 2 "" H 4038 10000 50  0001 C CNN
+F 3 "" H 4000 10150 50  0001 C CNN
+	1    4000 10150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4000 10000 3450 10000
+Connection ~ 1300 10000
+Wire Wire Line
+	1300 10000 800  10000
+Connection ~ 1800 10000
+Wire Wire Line
+	1800 10000 1300 10000
+Connection ~ 2350 10000
+Wire Wire Line
+	2350 10000 1800 10000
+Connection ~ 2900 10000
+Wire Wire Line
+	2900 10000 2350 10000
+Connection ~ 3450 10000
+Wire Wire Line
+	3450 10000 2900 10000
+Wire Wire Line
+	4000 10300 3450 10300
+Connection ~ 1800 10300
+Wire Wire Line
+	1800 10300 1300 10300
+Connection ~ 2350 10300
+Wire Wire Line
+	2350 10300 1800 10300
+Connection ~ 2900 10300
+Wire Wire Line
+	2900 10300 2350 10300
+Connection ~ 3450 10300
+Wire Wire Line
+	3450 10300 2900 10300
+Text Notes 800  10400 0    50   ~ 0
+VCCO bank 34
+Text Label 800  9300 2    50   ~ 0
+GND
+Text Label 800  9800 2    50   ~ 0
+GND
+Text Label 800  10300 2    50   ~ 0
+GND
+Text Label 800  10550 2    50   ~ 0
+3V3
+$Comp
+L device:C C12
+U 1 1 60D68E4D
+P 1300 10700
+F 0 "C12" H 1415 10746 50  0000 L CNN
+F 1 "4.7 uF" H 1415 10655 50  0000 L CNN
+F 2 "" H 1338 10550 50  0001 C CNN
+F 3 "" H 1300 10700 50  0001 C CNN
+	1    1300 10700
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C19
+U 1 1 60D68E57
+P 1800 10700
+F 0 "C19" H 1915 10746 50  0000 L CNN
+F 1 "4.7 uF" H 1915 10655 50  0000 L CNN
+F 2 "" H 1838 10550 50  0001 C CNN
+F 3 "" H 1800 10700 50  0001 C CNN
+	1    1800 10700
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C25
+U 1 1 60D68E61
+P 2350 10700
+F 0 "C25" H 2465 10746 50  0000 L CNN
+F 1 "0.47 uF" H 2465 10655 50  0000 L CNN
+F 2 "" H 2388 10550 50  0001 C CNN
+F 3 "" H 2350 10700 50  0001 C CNN
+	1    2350 10700
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C29
+U 1 1 60D68E6B
+P 2900 10700
+F 0 "C29" H 3015 10746 50  0000 L CNN
+F 1 "0.47 uF" H 3015 10655 50  0000 L CNN
+F 2 "" H 2938 10550 50  0001 C CNN
+F 3 "" H 2900 10700 50  0001 C CNN
+	1    2900 10700
+	1    0    0    -1  
+$EndComp
+Connection ~ 1300 10550
+Wire Wire Line
+	1300 10550 800  10550
+Connection ~ 1800 10550
+Wire Wire Line
+	1800 10550 1300 10550
+Connection ~ 2350 10550
+Wire Wire Line
+	2350 10550 1800 10550
+Wire Wire Line
+	2900 10550 2350 10550
+Connection ~ 1800 10850
+Wire Wire Line
+	1800 10850 1300 10850
+Connection ~ 2350 10850
+Wire Wire Line
+	2350 10850 1800 10850
+Wire Wire Line
+	2900 10850 2350 10850
+Text Notes 800  10950 0    50   ~ 0
+VCCO bank 0
+Text Label 800  10850 2    50   ~ 0
+GND
+Wire Wire Line
+	800  10850 1300 10850
+Connection ~ 1300 10850
+Wire Wire Line
+	1300 10300 800  10300
+Connection ~ 1300 10300
+$Comp
+L device:C C39
+U 1 1 60D81BD4
+P 2500 5650
+F 0 "C39" H 2615 5696 50  0000 L CNN
+F 1 "0.1 uF" H 2615 5605 50  0000 L CNN
+F 2 "" H 2538 5500 50  0001 C CNN
+F 3 "" H 2500 5650 50  0001 C CNN
+	1    2500 5650
+	1    0    0    -1  
+$EndComp
+Text Label 2650 5800 0    50   ~ 0
+GND
+Wire Wire Line
+	2650 5800 2500 5800
+Wire Wire Line
+	1550 5500 2500 5500
+$Comp
+L device:R R25
+U 1 1 60D90566
+P 2000 5750
+F 0 "R25" H 2070 5796 50  0000 L CNN
+F 1 "10K" H 2070 5705 50  0000 L CNN
+F 2 "" V 1930 5750 50  0001 C CNN
+F 3 "" H 2000 5750 50  0001 C CNN
+	1    2000 5750
+	1    0    0    -1  
+$EndComp
+Text Label 2200 5900 0    50   ~ 0
+GND
+Wire Wire Line
+	2200 5900 2000 5900
+Text Label 1550 5600 0    50   ~ 0
+MCU_BOOT0
+Wire Wire Line
+	2000 5600 1550 5600
+Text HLabel 2500 5500 2    50   Input ~ 0
+MCU_RST_N
+Text HLabel 9700 1950 2    50   Output ~ 0
+DUT_VDD
+$Comp
+L analog-azonenberg:DAC121C081-WSON U5
+U 1 1 60D4AD8A
+P 5750 2700
+F 0 "U5" H 6075 3675 50  0000 C CNN
+F 1 "DAC121C081-WSON" H 6075 3584 50  0000 C CNN
+F 2 "" H 5750 2700 50  0001 C CNN
+F 3 "" H 5750 2700 50  0001 C CNN
+	1    5750 2700
+	1    0    0    -1  
+$EndComp
+Text Label 5550 1950 2    50   ~ 0
+3V3
+Text Label 5550 2050 2    50   ~ 0
+GND
+Wire Wire Line
+	5550 2050 5550 2150
+Text HLabel 5550 2550 0    50   Input ~ 0
+I2C_SCL
+Text HLabel 5550 2650 0    50   BiDi ~ 0
+I2C_SDA
+NoConn ~ 5550 2350
+Text Notes 5750 2900 0    50   ~ 0
+Addr = 0x18\nConflicts with 0x8c, 0xc8
+Text Label 6600 1950 0    50   ~ 0
+DAC_VOUT
+$Comp
+L device:C C40
+U 1 1 60D5DB8B
+P 5550 3150
+F 0 "C40" H 5665 3196 50  0000 L CNN
+F 1 "0.47 uF" H 5665 3105 50  0000 L CNN
+F 2 "" H 5588 3000 50  0001 C CNN
+F 3 "" H 5550 3150 50  0001 C CNN
+	1    5550 3150
+	1    0    0    -1  
+$EndComp
+Text Label 5550 3000 2    50   ~ 0
+3V3
+Text Label 5550 3300 2    50   ~ 0
+GND
+$Comp
+L analog-azonenberg:ISL24021IRT065Z-T7A‎ U6
+U 1 1 60DE5CE9
+P 7800 2150
+F 0 "U6" H 8150 2975 50  0000 C CNN
+F 1 "ISL24021IRT065Z-T7A‎" H 8150 2884 50  0000 C CNN
+F 2 "" H 7800 2150 50  0001 C CNN
+F 3 "" H 7800 2150 50  0001 C CNN
+	1    7800 2150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6600 1950 7700 1950
+Text Label 7700 1650 2    50   ~ 0
+GND
+Wire Wire Line
+	7700 1650 7700 1750
+Text Label 7700 1550 2    50   ~ 0
+5V0
+$Comp
+L device:C C41
+U 1 1 60E14841
+P 7700 3150
+F 0 "C41" H 7815 3196 50  0000 L CNN
+F 1 "4.7 uF" H 7815 3105 50  0000 L CNN
+F 2 "" H 7738 3000 50  0001 C CNN
+F 3 "" H 7700 3150 50  0001 C CNN
+	1    7700 3150
+	1    0    0    -1  
+$EndComp
+Text Label 7700 3000 2    50   ~ 0
+5V0
+Text Label 7700 3300 2    50   ~ 0
+GND
+$Comp
+L device:C C42
+U 1 1 60E15929
+P 8200 3150
+F 0 "C42" H 8315 3196 50  0000 L CNN
+F 1 "0.47 uF" H 8315 3105 50  0000 L CNN
+F 2 "" H 8238 3000 50  0001 C CNN
+F 3 "" H 8200 3150 50  0001 C CNN
+	1    8200 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8200 3000 7700 3000
+Wire Wire Line
+	7700 3300 8200 3300
+$Comp
+L device:C C43
+U 1 1 60E256C5
+P 8900 3150
+F 0 "C43" H 9015 3196 50  0000 L CNN
+F 1 "4.7 uF" H 9015 3105 50  0000 L CNN
+F 2 "" H 8938 3000 50  0001 C CNN
+F 3 "" H 8900 3150 50  0001 C CNN
+	1    8900 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C44
+U 1 1 60E25CDE
+P 9400 3150
+F 0 "C44" H 9515 3196 50  0000 L CNN
+F 1 "0.47 uF" H 9515 3105 50  0000 L CNN
+F 2 "" H 9438 3000 50  0001 C CNN
+F 3 "" H 9400 3150 50  0001 C CNN
+	1    9400 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8900 3000 9400 3000
+Wire Wire Line
+	9400 3300 8900 3300
+Connection ~ 8200 3300
+Connection ~ 8900 3300
+Wire Wire Line
+	8900 3300 8200 3300
+$Comp
+L analog-azonenberg:INA216_QFN U7
+U 1 1 60E38E57
+P 7800 4600
+F 0 "U7" H 8150 5375 50  0000 C CNN
+F 1 "INA216_QFN" H 8150 5284 50  0000 C CNN
+F 2 "" H 7800 4600 50  0001 C CNN
+F 3 "" H 7800 4600 50  0001 C CNN
+	1    7800 4600
+	1    0    0    -1  
+$EndComp
+Text Label 8600 1950 0    50   ~ 0
+DUT_VDD_RAW
+Text Label 8900 3000 2    50   ~ 0
+DUT_VDD
+Wire Wire Line
+	8600 1950 9400 1950
+Text Label 7700 2050 2    50   ~ 0
+DUT_VDD
+Text Notes 7800 2350 0    50   ~ 0
+Feedback after shunt resistor,\nso we compensate for drop
+Text Label 7600 4250 2    50   ~ 0
+DUT_VDD_RAW
+Wire Wire Line
+	7600 4250 7600 4350
+Text Label 7600 4450 2    50   ~ 0
+DUT_VDD
+Wire Wire Line
+	7600 4450 7600 4550
+Text Label 7600 4050 2    50   ~ 0
+GND
+Text HLabel 8700 4250 2    50   Output ~ 0
+DUT_VDD_ISENSE
+Text Label 900  2050 2    50   ~ 0
+5V0
+Text Label 900  2650 2    50   ~ 0
+5V0
+Text Label 900  3500 2    50   ~ 0
+5V0
+$Comp
+L passive-azonenberg:R_PWR R28
+U 1 1 60E8F38B
+P 9550 1950
+F 0 "R28" V 9343 1950 50  0000 C CNN
+F 1 "R_PWR" V 9434 1950 50  0000 C CNN
+F 2 "" V 9480 1950 50  0001 C CNN
+F 3 "" H 9550 1950 50  0001 C CNN
+	1    9550 1950
+	0    1    1    0   
+$EndComp
+$EndSCHEMATC
