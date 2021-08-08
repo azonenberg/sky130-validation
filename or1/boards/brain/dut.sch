@@ -263,6 +263,4 @@ Text Label 10850 4250 0    50   ~ 0
 GPIO0
 NoConn ~ 10850 4350
 NoConn ~ 10850 4450
-NoConn ~ 11000 2350
-NoConn ~ 6050 2350
 $EndSCHEMATC
