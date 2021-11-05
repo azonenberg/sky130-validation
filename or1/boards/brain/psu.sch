@@ -6,7 +6,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 2 3
 Title "SKY130 Asic Validation Board"
-Date "2021-08-06"
+Date "2021-11-05"
 Rev "0.1"
 Comp "Antikernel Labs"
 Comment1 "Andrew D. Zonenberg"

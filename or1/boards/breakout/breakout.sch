@@ -5,7 +5,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "OR1 Test Chip Breakout"
-Date "2021-08-15"
+Date "2021-11-05"
 Rev "0.1"
 Comp "Antikernel Labs"
 Comment1 "Andrew D. Zonenberg"
@@ -310,23 +310,21 @@ Text Label 3950 1050 0    50   ~ 0
 CLK0
 Text Label 3950 1150 0    50   ~ 0
 CS0_N
-Text Label 3950 1250 0    50   ~ 0
+Text Label 3950 1550 0    50   ~ 0
 WE0_N
 Text Label 3950 1650 0    50   ~ 0
 WMASK0[0]
-Text Label 3950 1450 0    50   ~ 0
-WMASK0[1]
-Text Label 3950 1350 0    50   ~ 0
+Text Label 3950 1250 0    50   ~ 0
 WMASK0[2]
-Text Label 3950 3950 0    50   ~ 0
+Text Label 2500 4950 2    50   ~ 0
 ADDR0[0]
-Text Label 3950 3750 0    50   ~ 0
+Text Label 2500 4850 2    50   ~ 0
 ADDR0[1]
-Text Label 3950 3550 0    50   ~ 0
+Text Label 2500 4650 2    50   ~ 0
 ADDR0[2]
-Text Label 3950 3350 0    50   ~ 0
+Text Label 2500 4450 2    50   ~ 0
 ADDR0[3]
-Text Label 2500 3950 2    50   ~ 0
+Text Label 2500 4250 2    50   ~ 0
 ADDR0[4]
 $Comp
 L special-azonenberg:SKY130_TEST_OR1 U1
@@ -343,17 +341,17 @@ Text Label 3950 2150 0    50   ~ 0
 CLK1
 Text Label 3950 2250 0    50   ~ 0
 CS1_N
-Text Label 2500 3550 2    50   ~ 0
+Text Label 3950 3750 0    50   ~ 0
 ADDR0[6]
-Text Label 2500 3350 2    50   ~ 0
+Text Label 3950 3550 0    50   ~ 0
 ADDR0[7]
-Text Label 2500 4850 2    50   ~ 0
+Text Label 2500 4350 2    50   ~ 0
 DIN0[7]
-Text Label 2500 4550 2    50   ~ 0
+Text Label 3950 3450 0    50   ~ 0
 DIN0[15]
-Text Label 3950 3650 0    50   ~ 0
+Text Label 2500 3450 2    50   ~ 0
 DIN0[23]
-Text Label 2500 3650 2    50   ~ 0
+Text Label 2500 2950 2    50   ~ 0
 DIN0[31]
 Text Label 5750 1050 2    50   ~ 0
 CLK0
@@ -401,17 +399,17 @@ Text Label 5750 3450 2    50   ~ 0
 DIN0[24]
 Text Label 5750 3550 2    50   ~ 0
 DIN0[31]
-Text Label 2500 4450 2    50   ~ 0
+Text Label 3950 4050 0    50   ~ 0
 DOUT0[0]
-Text Label 2500 4650 2    50   ~ 0
+Text Label 2500 4750 2    50   ~ 0
 DOUT0[7]
-Text Label 2500 4950 2    50   ~ 0
-DOUT0[8]
 Text Label 3950 3850 0    50   ~ 0
+DOUT0[8]
+Text Label 2500 3650 2    50   ~ 0
 DOUT0[16]
-Text Label 3950 3450 0    50   ~ 0
+Text Label 3950 3150 0    50   ~ 0
 DOUT0[23]
-Text Label 2500 3450 2    50   ~ 0
+Text Label 2500 2550 2    50   ~ 0
 DOUT0[31]
 Text Label 7150 2850 0    50   ~ 0
 DOUT0[0]
@@ -436,31 +434,31 @@ CS1_N
 NoConn ~ 3950 1750
 NoConn ~ 3950 1850
 NoConn ~ 3950 1950
-Text Label 3950 2850 0    50   ~ 0
+Text Label 2500 3050 2    50   ~ 0
 ADDR1[1]
-Text Label 3950 2650 0    50   ~ 0
+Text Label 2500 2850 2    50   ~ 0
 ADDR1[2]
-Text Label 3950 2450 0    50   ~ 0
-ADDR1[3]
 Text Label 2500 2650 2    50   ~ 0
-ADDR1[6]
-Text Label 2500 2450 2    50   ~ 0
-ADDR1[7]
-Text Label 3950 3150 0    50   ~ 0
-DOUT1[0]
-Text Label 2500 2750 2    50   ~ 0
-DOUT1[7]
-Text Label 2500 2550 2    50   ~ 0
-DOUT1[8]
-Text Label 3950 2950 0    50   ~ 0
-DOUT1[15]
-Text Label 3950 2750 0    50   ~ 0
-DOUT1[16]
-Text Label 3950 2550 0    50   ~ 0
-DOUT1[23]
+ADDR1[3]
 Text Label 2500 3150 2    50   ~ 0
+ADDR1[6]
+Text Label 3950 2750 0    50   ~ 0
+ADDR1[7]
+Text Label 3950 2650 0    50   ~ 0
+DOUT1[0]
+Text Label 2500 3950 2    50   ~ 0
+DOUT1[7]
+Text Label 3950 3350 0    50   ~ 0
+DOUT1[8]
+Text Label 3950 2850 0    50   ~ 0
+DOUT1[15]
+Text Label 3950 3050 0    50   ~ 0
+DOUT1[16]
+Text Label 2500 3350 2    50   ~ 0
+DOUT1[23]
+Text Label 2500 3550 2    50   ~ 0
 DOUT1[24]
-Text Label 2500 2950 2    50   ~ 0
+Text Label 2500 3750 2    50   ~ 0
 DOUT1[31]
 Text Label 7200 4250 0    50   ~ 0
 DOUT1[0]
@@ -530,26 +528,28 @@ Wire Wire Line
 	1000 6500 850  6500
 Text Notes 2700 5100 0    50   ~ 0
 Bits swapped for layout
-Text Label 2500 2850 2    50   ~ 0
+Text Label 2500 2750 2    50   ~ 0
 ADDR1[5]
-Text Label 3950 4050 0    50   ~ 0
-DIN0[16]
-Text Label 2500 3050 2    50   ~ 0
-ADDR1[4]
-Text Label 2500 4750 2    50   ~ 0
-DIN0[8]
-Text Label 3950 3050 0    50   ~ 0
-ADDR1[0]
-Text Label 3950 1550 0    50   ~ 0
-WMASK0[3]
-Text Label 2500 3750 2    50   ~ 0
-ADDR0[5]
 Text Label 2500 3850 2    50   ~ 0
+DIN0[16]
+Text Label 2500 2450 2    50   ~ 0
+ADDR1[4]
+Text Label 3950 3650 0    50   ~ 0
+DIN0[8]
+Text Label 3950 2450 0    50   ~ 0
+ADDR1[0]
+Text Label 3950 3950 0    50   ~ 0
+ADDR0[5]
+Text Label 3950 2550 0    50   ~ 0
 DOUT0[24]
-Text Label 2500 4050 2    50   ~ 0
+Text Label 3950 2950 0    50   ~ 0
 DIN0[24]
-Text Label 2500 4250 2    50   ~ 0
+Text Label 2500 4550 2    50   ~ 0
 DIN0[0]
-Text Label 2500 4350 2    50   ~ 0
+Text Label 2500 4050 2    50   ~ 0
 DOUT0[15]
+Text Label 3950 1450 0    50   ~ 0
+WMASK0[1]
+Text Label 3950 1350 0    50   ~ 0
+WMASK0[3]
 $EndSCHEMATC
