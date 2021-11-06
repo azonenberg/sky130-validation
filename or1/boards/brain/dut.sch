@@ -6,7 +6,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 3 3
 Title ""
-Date "2021-11-05"
+Date "2021-11-06"
 Rev ""
 Comp ""
 Comment1 ""
@@ -187,9 +187,9 @@ Text Label 6950 7500 0    50   ~ 0
 DOUT0_1
 Text Label 6950 4900 0    50   ~ 0
 DOUT0_3
-Text Label 6950 5200 0    50   ~ 0
-DOUT0_4
 Text Label 6950 4100 0    50   ~ 0
+DOUT0_4
+Text Label 6950 5200 0    50   ~ 0
 DOUT0_5
 Text Label 6950 3600 0    50   ~ 0
 DOUT0_6
@@ -201,9 +201,9 @@ Text Label 9400 7250 2    50   ~ 0
 DOUT0_1
 Text Label 9400 6550 2    50   ~ 0
 DOUT0_3
-Text Label 9400 6150 2    50   ~ 0
-DOUT0_4
 Text Label 10850 5650 0    50   ~ 0
+DOUT0_4
+Text Label 9400 6150 2    50   ~ 0
 DOUT0_5
 Text Label 10850 5050 0    50   ~ 0
 DOUT0_6
