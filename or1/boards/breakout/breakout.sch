@@ -5,7 +5,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "OR1 Test Chip Breakout"
-Date "2021-11-05"
+Date "2021-11-06"
 Rev "0.1"
 Comp "Antikernel Labs"
 Comment1 "Andrew D. Zonenberg"
@@ -405,9 +405,9 @@ Text Label 2500 4750 2    50   ~ 0
 DOUT0[7]
 Text Label 3950 3850 0    50   ~ 0
 DOUT0[8]
-Text Label 2500 3650 2    50   ~ 0
-DOUT0[16]
 Text Label 3950 3150 0    50   ~ 0
+DOUT0[16]
+Text Label 2500 3650 2    50   ~ 0
 DOUT0[23]
 Text Label 2500 2550 2    50   ~ 0
 DOUT0[31]
