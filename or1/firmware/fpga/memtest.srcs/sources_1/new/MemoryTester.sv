@@ -81,6 +81,9 @@ module MemoryTester(
 	logic[7:0]	addr0_ff			= 0;
 	logic		p0_read_prbs_update	= 0;
 	logic		p0_fill_prbs_update	= 0;
+	logic		port0_done_adv		= 0;
+	logic		port0_rd			= 0;
+	logic		port0_rd_ff			= 0;
 
 	always_ff @(posedge clk) begin
 
@@ -92,8 +95,15 @@ module MemoryTester(
 
 		//Clear host side flags
 		port0_done			<= 0;
+		port0_fail			<= 0;
 		p0_read_prbs_update	<= 0;
 		p0_fill_prbs_update	<= 0;
+		port0_rd			<= 0;
+
+		//Pipeline delay on status flags
+		port0_rd_ff			<= port0_rd;
+		port0_done_adv		<= 0;
+		port0_done			<= port0_done_adv;
 
 		//Start command can happen at an even OR odd cycle boundary
 		if(fill_start)
@@ -140,14 +150,15 @@ module MemoryTester(
 				end	//end STATE_FILL
 
 				STATE_READ_P0: begin
+					port0_rd			<= 1;
 					cs0_n				<= 0;
 					addr0				<= addr0 + 1;
 					p0_read_prbs_update	<= 1;
 
 					//About to read last word? We're done
 					if(addr0 == 8'hfe) begin
-						state		<= STATE_IDLE;
-						port0_done	<= 1;
+						state			<= STATE_IDLE;
+						port0_done_adv	<= 1;
 					end
 
 				end	//end STATE_READ_P0
@@ -158,6 +169,93 @@ module MemoryTester(
 
 		//Read results on the rising edge (currently 0, going to 1 next cycle)
 		else begin
+
+			//Report failures
+			if(port0_rd_ff && (rdata0 != p0_read_prbs_out) ) begin
+				port0_fail		<= 1;
+				port0_fail_addr	<= addr0_ff;
+				port0_fail_mask	<= rdata0 ^ p0_read_prbs_out;
+			end
+
+		end
+
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Port 1 state machine
+
+	logic[7:0]	addr1_ff			= 0;
+	logic		p1_busy				= 0;
+	logic		p1_read_prbs_update	= 0;
+	wire[7:0]	p1_read_prbs_out;
+	logic		port1_done_adv		= 0;
+	logic		port1_rd			= 0;
+	logic		port1_rd_ff			= 0;
+
+	always_ff @(posedge clk) begin
+
+		//Toggle clocks
+		clk1				<= !clk1;
+
+		//Clear host side flags
+		port1_done			<= 0;
+		port1_fail			<= 0;
+		p1_read_prbs_update	<= 0;
+		port1_rd			<= 0;
+
+		//Pipeline delay on status flags
+		port1_done_adv		<= 0;
+		port1_done			<= port1_done_adv;
+		port1_rd_ff			<= port1_rd;
+
+		//Start command can happen at an even OR odd cycle boundary
+		if(read_port1_start)
+			p1_busy			<= 1;
+
+		//Drive outputs on falling edge of clk1 (currently 1, going to 0 next cycle) to maximize setup window
+		if(clk1) begin
+
+			//Clear memory side flags
+			cs1_n	<= 1;
+
+			//Save the address of the previous command
+			addr1_ff	<= addr1;
+
+			if(!p1_busy) begin
+
+				//set address to -1 mod 2^8
+				//so after first increment, we start at 0
+				addr1	<= 8'hff;
+
+			end
+
+			else begin
+
+				cs1_n				<= 0;
+				addr1				<= addr1 + 1;
+				p1_read_prbs_update	<= 1;
+				port1_rd			<= 1;
+
+				//About to read last word? We're done
+				if(addr1 == 8'hfe) begin
+					p1_busy			<= 0;
+					port1_done_adv	<= 1;
+				end
+
+			end
+
+		end
+
+		//Read results on the rising edge (currently 0, going to 1 next cycle)
+		else begin
+
+			//Report failures
+			if(port1_rd_ff && (rdata1 != p1_read_prbs_out) ) begin
+				port1_fail		<= 1;
+				port1_fail_addr	<= addr1_ff;
+				port1_fail_mask	<= rdata1 ^ p1_read_prbs_out;
+			end
+
 		end
 
 	end
@@ -185,7 +283,14 @@ module MemoryTester(
 		.dout(p0_read_prbs_out)
 	);
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Port 1 state machine
+	PRBS31 #(
+		.WIDTH(8)
+	) p1_read_prbs_gen (
+		.clk(clk),
+		.init(read_port1_start),
+		.update(p1_read_prbs_update),
+		.seed(prbs_seed),
+		.dout(p1_read_prbs_out)
+	);
 
 endmodule
