@@ -42,17 +42,17 @@ module top(
 
 	output logic		dut_gpio0 = 0,
 
-	output logic		clk0	= 0,
-	output logic		cs0_n	= 1,
-	output logic		we0_n	= 1,
-	output logic[3:0]	wmask0	= 0,
-	output logic[7:0]	addr0	= 0,
-	output logic[7:0]	wdata0	= 0,
+	output wire			clk0,
+	output wire			cs0_n,
+	output wire			we0_n,
+	output wire[3:0]	wmask0,
+	output wire[7:0]	addr0,
+	output wire[7:0]	wdata0,
 	input wire[7:0]		rdata0,
 
-	output logic		clk1	= 0,
-	output logic		cs1_n	= 1,
-	output logic[7:0]	addr1	= 0,
+	output wire			clk1,
+	output wire			cs1_n,
+	output wire[7:0]	addr1,
 	input wire[7:0]		rdata1
 	);
 
@@ -68,9 +68,150 @@ module top(
 	end
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Clock synthesis
+
+	//for now, just use the external oscillator with no PLL
+	wire clk;
+	assign clk = clk_25mhz;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// SPI bus to MCU
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// SRAM interface
+	// SRAM tester
+
+	logic		fill_start			= 0;
+	logic		read_port0_start	= 0;
+	logic		read_port1_start	= 0;
+
+	wire		port0_done;
+	wire		port0_fail;
+	wire[7:0]	port0_fail_addr;
+	wire[7:0]	port0_fail_mask;
+	wire		port1_done;
+	wire		port1_fail;
+	wire[7:0]	port1_fail_addr;
+	wire[7:0]	port1_fail_mask;
+
+	MemoryTester tester(
+		.clk(clk),
+
+		.fill_start(fill_start),
+		.prbs_seed(31'h5eadbeef),
+		.read_port0_start(read_port0_start),
+		.read_port1_start(read_port1_start),
+
+		.port0_done(port0_done),
+		.port0_fail(port0_fail),
+		.port0_fail_addr(port0_fail_addr),
+		.port0_fail_mask(port0_fail_mask),
+
+		.port1_done(port1_done),
+		.port1_fail(port1_fail),
+		.port1_fail_addr(port1_fail_addr),
+		.port1_fail_mask(port1_fail_mask),
+
+		.clk0(clk0),
+		.cs0_n(cs0_n),
+		.we0_n(we0_n),
+		.wmask0(wmask0),
+		.addr0(addr0),
+		.wdata0(wdata0),
+		.rdata0(rdata0),
+
+		.clk1(clk1),
+		.cs1_n(cs1_n),
+		.addr1(addr1),
+		.rdata1(rdata1)
+	);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// High level state machine
+
+	wire	trig_out;
+
+	enum logic[3:0]
+	{
+		TEST_STATE_IDLE		= 0,
+		TEST_STATE_FILL		= 1,
+		TEST_STATE_READ_P0	= 2,
+		TEST_STATE_READ_P1	= 3
+	} test_state = TEST_STATE_IDLE;
+
+	always_ff @(posedge clk) begin
+
+		fill_start			<= 0;
+		read_port0_start	<= 0;
+		read_port1_start	<= 0;
+
+		case(test_state)
+
+			TEST_STATE_IDLE: begin
+				if(trig_out) begin
+					fill_start	<= 1;
+					test_state	<= TEST_STATE_FILL;
+				end
+			end	//end TEST_STATE_IDLE
+
+			TEST_STATE_FILL: begin
+				if(port0_done) begin
+					read_port0_start	<= 1;
+					test_state			<= TEST_STATE_READ_P0;
+				end
+			end	//end TEST_STATE_FILL
+
+			TEST_STATE_READ_P0: begin
+				if(port0_done) begin
+					read_port1_start	<= 1;
+					test_state			<= TEST_STATE_READ_P1;
+				end
+			end	//end TEST_STATE_READ_P0
+
+			TEST_STATE_READ_P1: begin
+				if(port1_done)
+					test_state			<= TEST_STATE_IDLE;
+			end
+
+		endcase
+
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Debug ILA
+
+	ila_0 ila(
+		.clk(clk_25mhz),
+		.trig_out(trig_out),
+		.trig_out_ack(trig_out),
+		.probe0(clk0),
+		.probe1(cs0_n),
+		.probe2(we0_n),
+		.probe3(wmask0),
+		.probe4(addr0),
+		.probe5(wdata0),
+		.probe6(rdata0),
+		.probe7(clk1),
+		.probe8(cs1_n),
+		.probe9(addr1),
+		.probe10(rdata1),
+		.probe11(port0_done),
+		.probe12(port1_done),
+		.probe13(test_state),
+		.probe14(fill_start),
+		.probe15(read_port0_start),
+		.probe16(read_port1_start),
+		.probe17(port0_fail),
+		.probe18(port0_fail_addr),
+		.probe19(port0_fail_mask),
+		.probe20(port1_fail),
+		.probe21(port1_fail_addr),
+		.probe22(port1_fail_mask),
+		.probe23(tester.state),
+		.probe24(tester.addr0_ff),
+		.probe25(tester.p0_read_prbs_out),
+		.probe26(tester.fill_prbs_out),
+		.probe27(tester.p0_read_prbs_update),
+		.probe28(tester.p0_fill_prbs_update)
+	);
 
 endmodule
