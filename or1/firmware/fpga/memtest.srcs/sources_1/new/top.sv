@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+`default_nettype none
 /***********************************************************************************************************************
 *                                                                                                                      *
 * SKY130 OPENRAM BRINGUP v0.1                                                                                          *
@@ -27,6 +29,9 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
+/**
+	@brief Top level module
+ */
 module top(
 	input wire			clk_25mhz,
 
@@ -77,6 +82,26 @@ module top(
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// SPI bus to MCU
 
+	wire		cs_falling;
+	logic[7:0]	spi_tx_data			= 0;
+	logic		spi_tx_data_valid	= 0;
+	wire[7:0]	spi_rx_data;
+	wire		spi_rx_data_valid;
+
+	SPIDeviceInterface spi(
+		.clk(clk),
+		.spi_mosi(mcu_spi_si),
+		.spi_sck(mcu_spi_sck),
+		.spi_cs_n(mcu_spi_cs_n),
+		.spi_miso(mcu_spi_so),
+		.cs_falling(cs_falling),
+		.cs_n_sync(),
+		.tx_data(spi_tx_data),
+		.tx_data_valid(spi_tx_data_valid),
+		.rx_data(spi_rx_data),
+		.rx_data_valid(spi_rx_data_valid)
+	);
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// SRAM tester
 
@@ -126,53 +151,221 @@ module top(
 	);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// High level state machine
+	// Busy flags
 
-	wire	trig_out;
+	logic	p0_busy		= 0;
+	logic	p1_busy		= 0;
 
-	enum logic[3:0]
+	logic	clear_start	= 0;
+	logic	clear_busy	= 0;
+	logic	clear_done	= 0;
+
+	always_ff @(posedge clk) begin
+
+		if(read_port0_start || fill_start)
+			p0_busy			<= 1;
+		if(port0_done)
+			p0_busy			<= 0;
+
+		if(read_port1_start)
+			p1_busy			<= 1;
+		if(port1_done)
+			p1_busy			<= 0;
+
+		if(clear_start)
+			clear_busy		<= 1;
+		if(clear_done)
+			clear_busy		<= 0;
+
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Test result memory
+
+	logic[7:0]	p0_fail_mem[255:0];
+	logic[7:0]	p1_fail_mem[255:0];
+
+	logic		table_wr_p0		= 0;
+	logic		table_wr_p1		= 0;
+	logic[7:0]	table_waddr_p0	= 0;
+	logic[7:0]	table_waddr_p1	= 0;
+	logic[7:0]	table_wdata_p0	= 0;
+	logic[7:0]	table_wdata_p1	= 0;
+
+	logic		table_rd		= 0;
+	logic[7:0]	table_raddr		= 0;
+	logic[7:0]	p0_rdata		= 0;
+	logic[7:0]	p1_rdata		= 0;
+
+	always_ff @(posedge clk) begin
+
+		if(table_rd) begin
+			p0_rdata	<= p0_fail_mem[table_raddr];
+			p1_rdata	<= p1_fail_mem[table_raddr];
+		end
+
+		if(table_wr_p0)
+			p0_fail_mem[table_waddr_p0]	<= table_wdata_p0;
+		if(table_wr_p1)
+			p1_fail_mem[table_waddr_p1]	<= table_wdata_p1;
+
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Test result memory writes
+
+	always_ff @(posedge clk) begin
+		clear_done	<= 0;
+		table_wr_p0	<= 0;
+		table_wr_p1	<= 0;
+
+		//Reset addresses when beginning a clear cycle
+		if(clear_start) begin
+			table_waddr_p0	<= 8'hff;
+			table_waddr_p1	<= 8'hff;
+		end
+
+		//Run a clear cycle
+		if(clear_busy) begin
+			table_wr_p0		<= 1;
+			table_waddr_p0	<= table_waddr_p0 + 1;
+			table_wdata_p0	<= 0;
+
+			table_wr_p1		<= 1;
+			table_waddr_p1	<= table_waddr_p1 + 1;
+			table_wdata_p1	<= 0;
+
+			if(table_waddr_p0 == 8'hfe)
+				clear_done	<= 1;
+		end
+
+		//Report test failures
+		if(port0_fail) begin
+			table_wr_p0		<= 1;
+			table_waddr_p0	<= port0_fail_addr;
+			table_wdata_p0	<= port0_fail_mask;
+		end
+		if(port1_fail) begin
+			table_wr_p1		<= 1;
+			table_waddr_p1	<= port1_fail_addr;
+			table_wdata_p1	<= port1_fail_mask;
+		end
+
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// SPI state machine
+
+	typedef enum logic[7:0]
 	{
-		TEST_STATE_IDLE		= 0,
-		TEST_STATE_FILL		= 1,
-		TEST_STATE_READ_P0	= 2,
-		TEST_STATE_READ_P1	= 3
-	} test_state = TEST_STATE_IDLE;
+		REG_NOP		= 8'h00,		//ignored
+
+		REG_COMMAND	= 8'h01,		//0x01	Fill memory
+									//0x02	Read port 0
+									//0x04	Read port 1
+									//0x08	Clear results
+
+		REG_STATUS	= 8'h02,		//0x01	Port 0 busy
+									//0x02	Port 1 busy
+									//0x04	Clear busy
+
+		REG_ADDR	= 8'h03,		//Address for accessing test results
+
+		REG_P0_MASK	= 8'h04,		//Read result for port 0
+		REG_P1_MASK	= 8'h05			//Read result for port 0
+
+	} register_t;
+
+	enum logic[7:0]
+	{
+		STATE_IDLE		= 0,
+		STATE_END		= 1,
+		STATE_COMMAND	= 2,
+		STATE_ADDRESS	= 3
+	} state = STATE_IDLE;
 
 	always_ff @(posedge clk) begin
 
 		fill_start			<= 0;
 		read_port0_start	<= 0;
 		read_port1_start	<= 0;
+		clear_start			<= 0;
+		spi_tx_data_valid	<= 0;
+		table_rd			<= 0;
 
-		case(test_state)
+		case(state)
 
-			TEST_STATE_IDLE: begin
-				if(trig_out) begin
-					fill_start	<= 1;
-					test_state	<= TEST_STATE_FILL;
+			//Wait for register access
+			STATE_IDLE: begin
+
+				if(spi_rx_data_valid) begin
+
+					//figure out what to do next
+					case(spi_rx_data)
+
+						REG_COMMAND: begin
+							state	<= STATE_COMMAND;
+						end
+
+						REG_STATUS: begin
+							spi_tx_data_valid	<= 1;
+							spi_tx_data			<= {5'h0, clear_busy, p1_busy, p0_busy};
+							state				<= STATE_END;
+						end
+
+						REG_ADDR: begin
+							state	<= STATE_ADDRESS;
+						end
+
+						REG_P0_MASK: begin
+							spi_tx_data_valid	<= 1;
+							spi_tx_data			<= p0_rdata;
+							state				<= STATE_END;
+						end
+
+						REG_P1_MASK: begin
+							spi_tx_data_valid	<= 1;
+							spi_tx_data			<= p1_rdata;
+							state				<= STATE_END;
+						end
+
+					endcase
+
 				end
-			end	//end TEST_STATE_IDLE
 
-			TEST_STATE_FILL: begin
-				if(port0_done) begin
-					read_port0_start	<= 1;
-					test_state			<= TEST_STATE_READ_P0;
+			end	//end STATE_IDLE
+
+			//Transaction is over, wait for next CS# falling edge
+			STATE_END: begin
+			end	//end STATE_END
+
+			//Command
+			STATE_COMMAND: begin
+
+				if(spi_rx_data_valid) begin
+					fill_start			<= spi_rx_data[0];
+					read_port0_start	<= spi_rx_data[1];
+					read_port1_start	<= spi_rx_data[2];
+					clear_start			<= spi_rx_data[3];
+					state				<= STATE_END;
 				end
-			end	//end TEST_STATE_FILL
 
-			TEST_STATE_READ_P0: begin
-				if(port0_done) begin
-					read_port1_start	<= 1;
-					test_state			<= TEST_STATE_READ_P1;
+			end	//end STATE_COMMAND
+
+			//Address
+			STATE_ADDRESS: begin
+				if(spi_rx_data_valid) begin
+					table_raddr			<= spi_rx_data;
+					table_rd			<= 1;
+					state				<= STATE_END;
 				end
-			end	//end TEST_STATE_READ_P0
-
-			TEST_STATE_READ_P1: begin
-				if(port1_done)
-					test_state			<= TEST_STATE_IDLE;
-			end
+			end	//end STATE_ADDRESS
 
 		endcase
+
+		//Reset SPI state machine on CS# falling edge
+		if(cs_falling)
+			state	<= STATE_IDLE;
 
 	end
 
@@ -181,37 +374,22 @@ module top(
 
 	ila_0 ila(
 		.clk(clk_25mhz),
-		.trig_out(trig_out),
-		.trig_out_ack(trig_out),
-		.probe0(clk0),
-		.probe1(cs0_n),
-		.probe2(we0_n),
-		.probe3(wmask0),
-		.probe4(addr0),
-		.probe5(wdata0),
-		.probe6(rdata0),
-		.probe7(clk1),
-		.probe8(cs1_n),
-		.probe9(addr1),
-		.probe10(rdata1),
-		.probe11(port0_done),
-		.probe12(port1_done),
-		.probe13(test_state),
-		.probe14(fill_start),
-		.probe15(read_port0_start),
-		.probe16(read_port1_start),
-		.probe17(port0_fail),
-		.probe18(port0_fail_addr),
-		.probe19(port0_fail_mask),
-		.probe20(port1_fail),
-		.probe21(port1_fail_addr),
-		.probe22(port1_fail_mask),
-		.probe23(tester.state),
-		.probe24(tester.addr0_ff),
-		.probe25(tester.p0_read_prbs_out),
-		.probe26(tester.fill_prbs_out),
-		.probe27(tester.p0_read_prbs_update),
-		.probe28(tester.p0_fill_prbs_update)
+		.probe0(spi_rx_data_valid),
+		.probe1(spi_rx_data),
+		.probe2(spi_tx_data_valid),
+		.probe3(spi_tx_data),
+		.probe4(state),
+		.probe5(port0_fail),
+		.probe6(spi.cs_n_sync),
+		.probe7(read_port0_start),
+		.probe8(table_rd),
+		.probe9(port0_done),
+		.probe10(p0_rdata),
+		.probe11(port0_fail_addr),
+		.probe12(port0_fail_mask),
+		.probe13(table_wr_p0),
+		.probe14(table_waddr_p0),
+		.probe15(table_raddr)
 	);
 
 endmodule

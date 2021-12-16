@@ -98,10 +98,8 @@ module MemoryTester(
 		port0_fail			<= 0;
 		p0_read_prbs_update	<= 0;
 		p0_fill_prbs_update	<= 0;
-		port0_rd			<= 0;
 
 		//Pipeline delay on status flags
-		port0_rd_ff			<= port0_rd;
 		port0_done_adv		<= 0;
 		port0_done			<= port0_done_adv;
 
@@ -117,8 +115,12 @@ module MemoryTester(
 		if(clk0) begin
 
 			//Clear memory side flags
-			cs0_n	<= 1;
-			we0_n	<= 1;
+			cs0_n		<= 1;
+			we0_n		<= 1;
+
+			//If we did a read last cycle, data should be ready this cycle
+			port0_rd	<= 0;
+			port0_rd_ff	<= port0_rd;
 
 			//Save the address of the previous command
 			addr0_ff	<= addr0;
@@ -201,12 +203,10 @@ module MemoryTester(
 		port1_done			<= 0;
 		port1_fail			<= 0;
 		p1_read_prbs_update	<= 0;
-		port1_rd			<= 0;
 
 		//Pipeline delay on status flags
 		port1_done_adv		<= 0;
 		port1_done			<= port1_done_adv;
-		port1_rd_ff			<= port1_rd;
 
 		//Start command can happen at an even OR odd cycle boundary
 		if(read_port1_start)
@@ -217,6 +217,10 @@ module MemoryTester(
 
 			//Clear memory side flags
 			cs1_n	<= 1;
+
+			//If we did a read last cycle, data should be ready this cycle
+			port1_rd	<= 0;
+			port1_rd_ff	<= port1_rd;
 
 			//Save the address of the previous command
 			addr1_ff	<= addr1;

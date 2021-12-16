@@ -58,23 +58,8 @@ protected:
 	virtual void OnExecute();
 
 	void OnVcore(int mv);
-
-	/*
-	void OnIPAddress(const char* ipstring);
-
-	void OnDefaultGateway(const char* ipstring);
-	void OnShowCommand();
-	void ShowARPCache();
-	void ShowFlash();
-	void ShowHardware();
-	void ShowIPAddr();
-	void ShowIPRoute();
-	void ShowSSHFingerprint();
-
-	void OnReload();
-
-	void OnZeroize();
-	*/
+	void OnTest();
+	void OnRetentionTest();
 
 	CLIOutputStream* m_stream;
 };

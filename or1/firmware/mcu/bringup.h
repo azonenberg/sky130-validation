@@ -43,12 +43,25 @@
 #include "BringupCLISessionContext.h"
 
 void SetDutVcore(int mv);
+uint8_t GetFPGAStatus();
+void FillMemory();
+void ClearResults();
+void SendCommand(uint8_t cmd);
+void VerifyPort0();
+void VerifyPort1();
+void GetResultsPort0(uint8_t* masks);
+void GetResultsPort1(uint8_t* masks);
 
 extern UART* 			g_uart;
 extern I2C*				g_i2c;
 extern Logger	 		g_log;
 extern UARTOutputStream g_uartStream;
 extern BringupCLISessionContext g_cliContext;
+extern Timer*			g_timer10KHz;
+
+extern bool				g_fpgaUp;
+
+void SleepMs(uint32_t ms);
 
 
 #endif

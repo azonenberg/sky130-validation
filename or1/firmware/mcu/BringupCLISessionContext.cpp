@@ -37,6 +37,8 @@
 //List of all valid commands
 enum cmdid_t
 {
+	CMD_RETENTION,
+	CMD_TEST,
 	CMD_VCORE
 };
 
@@ -54,6 +56,8 @@ static const clikeyword_t g_vcoreCommands[] =
 
 static const clikeyword_t g_rootCommands[] =
 {
+	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
+	{"test",			CMD_TEST,				NULL,						"Test memory"},
 	{"vcore",			CMD_VCORE,				g_vcoreCommands,			"Set DUT core voltage"},
 
 	{NULL,				INVALID_COMMAND,		NULL,						NULL}
@@ -84,6 +88,14 @@ void BringupCLISessionContext::OnExecute()
 {
 	switch(m_command[0].m_commandID)
 	{
+		case CMD_RETENTION:
+			OnRetentionTest();
+			break;
+
+		case CMD_TEST:
+			OnTest();
+			break;
+
 		case CMD_VCORE:
 			OnVcore(atoi(m_command[1].m_text));
 			break;
@@ -103,4 +115,78 @@ void BringupCLISessionContext::OnVcore(int mv)
 	m_stream->Flush();
 	g_uart->Printf("Setting DUT Vcore to %d mV\n", mv);
 	SetDutVcore(mv);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "decay"
+
+void BringupCLISessionContext::OnRetentionTest()
+{
+	m_stream->Flush();
+	if(!g_fpgaUp)
+	{
+		g_log(Logger::ERROR, "FPGA is not up, can't run test\n");
+		return;
+	}
+
+	int delay_sec = 10;
+	g_uart->Printf("Running retention test with swept retention voltage, %d sec delay, 1800 mV read/write\n",
+		delay_sec);
+
+	//Do a series of write-then-read tests while sweeping voltage
+	g_uart->Printf("vretention,badbits\n");
+	uint8_t results[256] = {0};
+	for(int mv = 500; mv > 0; mv -= 10)
+	{
+		//Fill the memory
+		SetDutVcore(1800);
+		SleepMs(10);
+		ClearResults();
+		FillMemory();
+
+		//Reduce voltage to retention level
+		SetDutVcore(mv);
+
+		//Wait for retention period
+		SleepMs(delay_sec * 1000);
+
+		//Read back
+		SetDutVcore(1800);
+		SleepMs(10);
+		VerifyPort0();
+		GetResultsPort0(results);
+
+		int badbits = 0;
+		for(int i=0; i<256; i++)
+			badbits += __builtin_popcount(results[i]);
+		g_uart->Printf("%4d, %d\n", mv, badbits);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "test"
+
+void BringupCLISessionContext::OnTest()
+{
+	m_stream->Flush();
+
+	if(!g_fpgaUp)
+	{
+		g_log(Logger::ERROR, "FPGA is not up, can't run test\n");
+		return;
+	}
+
+	ClearResults();
+	FillMemory();
+	VerifyPort0();
+
+	uint8_t results[256] = {0};
+	GetResultsPort0(results);
+
+	g_uart->Printf("Process results\n");
+	for(int i=0; i<256; i++)
+	{
+		if(results[i] != 0)
+			g_uart->Printf("%02x: %02x\n", i, results[i]);
+	}
 }

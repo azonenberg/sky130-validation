@@ -32,9 +32,14 @@
 //Global peripherals and state
 UART* 						g_uart;
 I2C*						g_i2c;
+SPI*						g_spi;
+GPIOPin*					g_csn;
 Logger 						g_log;
 UARTOutputStream			g_uartStream;
+Timer*						g_timer10KHz;
 BringupCLISessionContext	g_sessionContext;
+
+bool g_fpgaUp				= false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Entry point
@@ -75,6 +80,7 @@ int main()
 
 	//Set up timer with 100us (10 kHz) ticks, required by logger
 	static Timer timer(&TIM1, Timer::FEATURE_ADVANCED, 4800);
+	g_timer10KHz = &timer;
 
 	//Set up logging
 	g_log.Initialize(g_uart, &timer);
@@ -90,13 +96,15 @@ int main()
 	g_uartStream.Initialize(g_uart);
 	g_sessionContext.Initialize(&g_uartStream, "admin");
 
-	/*
-	//Set up SPI bus at 12 MHz (APB/4)
+	//Set up SPI bus at 6 MHz (APB/8)
 	static GPIOPin spi_sck( &GPIOB, 3, GPIOPin::MODE_PERIPHERAL, 0);
 	static GPIOPin spi_miso(&GPIOB, 4, GPIOPin::MODE_PERIPHERAL, 0);
 	static GPIOPin spi_mosi(&GPIOB, 5, GPIOPin::MODE_PERIPHERAL, 0);
-	static SPI spi(&SPI1, true, 4);
-	*/
+	static GPIOPin spi_cs_n(&GPIOB, 1, GPIOPin::MODE_OUTPUT, 0);
+	static SPI spi(&SPI1, true, 8);
+	g_spi = &spi;
+	g_csn = &spi_cs_n;
+	spi_cs_n = 1;
 
 	//Set up I2C.
 	//Prescale divide by 8 (6 MHz, 166.6 ns/tick)
@@ -123,7 +131,21 @@ int main()
 			g_sessionContext.OnKeystroke(g_uart->BlockingRead());
 
 		//LED1 is FPGA boot state
-		led1 = fpga_done.Get();
+		bool done = fpga_done.Get();
+		led1 = done;
+		if(done && !g_fpgaUp)
+		{
+			g_uartStream.Flush();
+			g_uart->Printf("\n");
+			g_log("FPGA is up\n");
+		}
+		if(!done && g_fpgaUp)
+		{
+			g_uartStream.Flush();
+			g_uart->Printf("\n");
+			g_log("FPGA is down\n");
+		}
+		g_fpgaUp = done;
 	}
 
 	return 0;
@@ -159,4 +181,108 @@ void SetDutVcore(int mv)
 	//0x0fff = 3300 mV
 	int code = (mv * 0xfff) / 3300;
 	g_i2c->BlockingWrite16(0x18, code);
+}
+
+uint8_t GetFPGAStatus()
+{
+	//Fill
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x02);	//REG_STATUS
+	uint8_t ret = g_spi->BlockingRead();
+	*g_csn = 1;
+
+	//g_uart->Printf("    status = %02x\n", ret);
+
+	return ret;
+}
+
+void ClearResults()
+{
+	SendCommand(0x08);	//Clear
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 4) != 0)
+	{}
+}
+
+/**
+	@brief Write a value to REG_COMMAND
+ */
+void SendCommand(uint8_t cmd)
+{
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x01);	//REG_COMMAND
+	g_spi->BlockingWrite(cmd);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+}
+
+void FillMemory()
+{
+	SendCommand(0x01);	//Fill
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 3) != 0)
+	{}
+}
+
+void VerifyPort0()
+{
+	//Send verify command
+	SendCommand(0x02);
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 3) != 0)
+	{}
+}
+
+void VerifyPort1()
+{
+	//Send verify command
+	SendCommand(0x04);
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 3) != 0)
+	{}
+}
+
+void GetResultsPort0(uint8_t* masks)
+{
+	for(int addr=0; addr<=0xff; addr ++)
+	{
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x03);	//REG_ADDR
+		g_spi->BlockingWrite(addr);
+		g_spi->WaitForWrites();
+		*g_csn = 1;
+
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x04);	//REG_P0_MASK
+		masks[addr] = g_spi->BlockingRead();
+		*g_csn = 1;
+	}
+}
+
+void GetResultsPort1(uint8_t* masks)
+{
+	for(int addr=0; addr<=0xff; addr ++)
+	{
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x03);	//REG_ADDR
+		g_spi->BlockingWrite(addr);
+		g_spi->WaitForWrites();
+		*g_csn = 1;
+
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x05);	//REG_P1_MASK
+		masks[addr] = g_spi->BlockingRead();
+		*g_csn = 1;
+	}
+}
+
+void SleepMs(uint32_t ms)
+{
+	for(uint32_t i=0; i<ms; i++)
+		g_timer10KHz->Sleep(10, true);
 }

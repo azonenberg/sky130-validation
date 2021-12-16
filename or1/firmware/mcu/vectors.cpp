@@ -189,7 +189,8 @@ fnptr __attribute__((section(".vector"))) vectorTable[] =
 
 void defaultISR()
 {
-	//g_platform.m_cliUart.PrintString("Unused interrupt vector called\n");
+	g_uart->Printf("Unused ISR called\n");
+
 	while(1)
 	{}
 }
@@ -199,14 +200,13 @@ void defaultISR()
 
 void NMI_Handler()
 {
-	//g_platform.m_cliUart.PrintString("NMI\n");
+	g_uart->Printf("NMI\n");
 	while(1)
 	{}
 }
 
 void HardFault_Handler()
 {
-	/*
 	uint32_t* msp;
 	asm volatile("mrs %[result], MSP" : [result]"=r"(msp));
 	msp += 12;	//locals/alignment
@@ -219,34 +219,34 @@ void HardFault_Handler()
 	uint32_t pc = msp[6];
 	uint32_t xpsr = msp[7];
 
-	g_platform.m_cliUart.Printf("Hard fault\n");
-	g_platform.m_cliUart.Printf("    HFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed2C));
-	g_platform.m_cliUart.Printf("    MMFAR = %08x\n", *(volatile uint32_t*)(0xe000ed34));
-	g_platform.m_cliUart.Printf("    BFAR  = %08x\n", *(volatile uint32_t*)(0xe000ed38));
-	g_platform.m_cliUart.Printf("    CFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed28));
-	g_platform.m_cliUart.Printf("    UFSR  = %08x\n", *(volatile uint16_t*)(0xe000ed2a));
-	g_platform.m_cliUart.Printf("    DFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed30));
-	g_platform.m_cliUart.Printf("    MSP   = %08x\n", msp);
-	g_platform.m_cliUart.Printf("    r0    = %08x\n", r0);
-	g_platform.m_cliUart.Printf("    r1    = %08x\n", r1);
-	g_platform.m_cliUart.Printf("    r2    = %08x\n", r2);
-	g_platform.m_cliUart.Printf("    r3    = %08x\n", r3);
-	g_platform.m_cliUart.Printf("    r12   = %08x\n", r12);
-	g_platform.m_cliUart.Printf("    lr    = %08x\n", lr);
-	g_platform.m_cliUart.Printf("    pc    = %08x\n", pc);
-	g_platform.m_cliUart.Printf("    xpsr  = %08x\n", xpsr);
+	g_uart->Printf("Hard fault\n");
+	g_uart->Printf("    HFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed2C));
+	g_uart->Printf("    MMFAR = %08x\n", *(volatile uint32_t*)(0xe000ed34));
+	g_uart->Printf("    BFAR  = %08x\n", *(volatile uint32_t*)(0xe000ed38));
+	g_uart->Printf("    CFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed28));
+	g_uart->Printf("    UFSR  = %08x\n", *(volatile uint16_t*)(0xe000ed2a));
+	g_uart->Printf("    DFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed30));
+	g_uart->Printf("    MSP   = %08x\n", msp);
+	g_uart->Printf("    r0    = %08x\n", r0);
+	g_uart->Printf("    r1    = %08x\n", r1);
+	g_uart->Printf("    r2    = %08x\n", r2);
+	g_uart->Printf("    r3    = %08x\n", r3);
+	g_uart->Printf("    r12   = %08x\n", r12);
+	g_uart->Printf("    lr    = %08x\n", lr);
+	g_uart->Printf("    pc    = %08x\n", pc);
+	g_uart->Printf("    xpsr  = %08x\n", xpsr);
 
-	g_platform.m_cliUart.Printf("    Stack:\n");
+	g_uart->Printf("    Stack:\n");
 	for(int i=0; i<16; i++)
-		g_platform.m_cliUart.Printf("        %08x\n", msp[i]);
-	*/
+		g_uart->Printf("        %08x\n", msp[i]);
+
 	while(1)
 	{}
 }
 
 void BusFault_Handler()
 {
-	//g_platform.m_cliUart.PrintString("Bus fault\n");
+	g_uart->Printf("Bus fault\n");
 	while(1)
 	{}
 }
