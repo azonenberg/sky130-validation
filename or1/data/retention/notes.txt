@@ -1,0 +1,33 @@
+RETENTION TEST
+VIO = constant 3.3V
+
+Running at 12.5 MHz
+
+Test protocol:
+* Set Vcore = 1.8V
+* Wait 10 ms
+* Fill memory with test pattern on port 0
+* Reduce Vcore to test voltage
+* Wait 10 seconds
+* Bring Vcore back up to 1.8V
+* Wait 10 ms
+* Read results back on port 0
+
+Repeat test from 500 to 10 mV
+
+Two stage Peltier heat pump mounted to top side of die. Arctic Silver 5 TIM. Held in place by mass of heat sink
+(Dynatron x86 CPU cooler).
+
+Chilled: (2.6A)
+* Coldest point of Peltier touching chip measures -0.2C via FLIR
+* Top of PCB near chip measures 14.8C via FLIR
+* Bottom of PCB directly under chip measures 12.0C via PT100 RTD
+
+Ambient
+* Heat pump inactive
+* PCB temperature measures 23.9C via PT100 RTD
+
+Heated (2.7A)
+* Hottest part of Peltier touching chip measures 86.6C via FLIR
+* Top of PCB near chip measures 57.4C via FLIR
+* Bottom of PCB directly under chip measures 55.7C via PT100 RTD
