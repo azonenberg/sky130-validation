@@ -37,7 +37,10 @@
 //List of all valid commands
 enum cmdid_t
 {
+	CMD_DUAL_PORT,
+	CMD_OPERATION,
 	CMD_RETENTION,
+	CMD_SINGLE_PORT,
 	CMD_TEST,
 	CMD_VCORE
 };
@@ -51,11 +54,24 @@ static const clikeyword_t g_vcoreCommands[] =
 	{NULL,				INVALID_COMMAND,		NULL,						NULL}
 };
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "operation"
+
+static const clikeyword_t g_operationCommands[] =
+{
+	{"single",			CMD_SINGLE_PORT,		NULL,						"Single port readback"},
+	{"dual",			CMD_DUAL_PORT,			NULL,						"Simultaneous dual port readback"},
+	{NULL,				INVALID_COMMAND,		NULL,						NULL}
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Top level command list
 
 static const clikeyword_t g_rootCommands[] =
 {
+	{"operation",		CMD_OPERATION,			g_operationCommands,		"Operation voltage test"},
 	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
 	{"test",			CMD_TEST,				NULL,						"Test memory"},
 	{"vcore",			CMD_VCORE,				g_vcoreCommands,			"Set DUT core voltage"},
@@ -88,6 +104,10 @@ void BringupCLISessionContext::OnExecute()
 {
 	switch(m_command[0].m_commandID)
 	{
+		case CMD_OPERATION:
+			OnOperatingVoltageTest(m_command[1].m_commandID == CMD_DUAL_PORT);
+			break;
+
 		case CMD_RETENTION:
 			OnRetentionTest();
 			break;
@@ -118,7 +138,54 @@ void BringupCLISessionContext::OnVcore(int mv)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// "decay"
+// "operation"
+
+void BringupCLISessionContext::OnOperatingVoltageTest(bool dualport)
+{
+	m_stream->Flush();
+	if(!g_fpgaUp)
+	{
+		g_log(Logger::ERROR, "FPGA is not up, can't run test\n");
+		return;
+	}
+
+	g_uart->Printf("Running single port operation voltage test with readback on port 0\n");
+
+	//Do a series of write-then-read tests while sweeping voltage
+	g_uart->Printf("vcore,badbits\n");
+	uint8_t results1[256] = {0};
+	uint8_t results2[256] = {0};
+	for(int mv = 1800; mv > 1000; mv -= 10)
+	{
+		//Fill the memory
+		SetDutVcore(mv);
+		SleepMs(10);
+		ClearResults();
+		FillMemory();
+
+		//Wait for retention period
+		SleepMs(50);
+
+		//Read back
+		if(dualport)
+			VerifyDualPort();
+		else
+			VerifyPort0();
+		GetResultsPort0(results1);
+		if(dualport)
+			GetResultsPort1(results2);
+		else
+			memset(results2, 0, sizeof(results2));
+
+		int badbits = 0;
+		for(int i=0; i<256; i++)
+			badbits += __builtin_popcount(results1[i] | results2[i]);
+		g_uart->Printf("%4d, %d\n", mv, badbits);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "retention"
 
 void BringupCLISessionContext::OnRetentionTest()
 {

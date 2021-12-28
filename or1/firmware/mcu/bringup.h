@@ -49,6 +49,7 @@ void ClearResults();
 void SendCommand(uint8_t cmd);
 void VerifyPort0();
 void VerifyPort1();
+void VerifyDualPort();
 void GetResultsPort0(uint8_t* masks);
 void GetResultsPort1(uint8_t* masks);
 

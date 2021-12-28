@@ -247,6 +247,16 @@ void VerifyPort1()
 	{}
 }
 
+void VerifyDualPort()
+{
+	//Send verify command
+	SendCommand(0x06);
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 3) != 0)
+	{}
+}
+
 void GetResultsPort0(uint8_t* masks)
 {
 	for(int addr=0; addr<=0xff; addr ++)

@@ -60,6 +60,7 @@ protected:
 	void OnVcore(int mv);
 	void OnTest();
 	void OnRetentionTest();
+	void OnOperatingVoltageTest(bool dualport);
 
 	CLIOutputStream* m_stream;
 };
