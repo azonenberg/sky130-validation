@@ -47,12 +47,12 @@ for($i=10; $i<30; $i++)
 echo "\n";
 
 //print data
-for($row = 0; $row < 42; $row ++)
+for($row = 0; $row < 41; $row ++)
 {
 	$voltage = 1800 - (10*$row);
 	echo "$voltage,";
 	for($col = 0; $col < 20; $col ++)
-		echo $summary[$row][$col] . ',';
+		echo $summary[$row+1][$col] . ',';
 	echo "\n";
 }
 
