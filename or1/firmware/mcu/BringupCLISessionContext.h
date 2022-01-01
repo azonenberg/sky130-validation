@@ -61,6 +61,10 @@ protected:
 	void OnTest();
 	void OnRetentionTest();
 	void OnOperatingVoltageTest(bool dualport);
+	void OnClockFrequencyTest();
+	void OnFrequencyVoltageShmoo(bool dualport);
+
+	void MakeSureFPGAIsUp();
 
 	CLIOutputStream* m_stream;
 };

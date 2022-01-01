@@ -52,6 +52,13 @@ void VerifyPort1();
 void VerifyDualPort();
 void GetResultsPort0(uint8_t* masks);
 void GetResultsPort1(uint8_t* masks);
+void ConfigureClock(int target_khz);
+void WaitForPLLReady();
+void WaitForPLLLocked();
+void StartPLLReconfig();
+void ConfigurePLLVCO(int indiv, int mult);
+void ConfigurePLLOutput(int chan, int div, int phase);
+void EndPLLReconfig();
 
 extern UART* 			g_uart;
 extern I2C*				g_i2c;

@@ -296,3 +296,183 @@ void SleepMs(uint32_t ms)
 	for(uint32_t i=0; i<ms; i++)
 		g_timer10KHz->Sleep(10, true);
 }
+
+/*
+	Clock configurations
+
+	Assume for now we always use indiv = 2 (PFD freq = 12.5 MHz) to get more frequency resolution
+	Can use indiv=1 and half the multiplier for lower jitter when VCO multiplier is even
+
+	Legal VCO multipliers:
+		48 (600 MHz)
+		49 (612.5 MHz)
+		50 (625 MHz)
+		51 (637.5 MHz)
+
+		...
+		96 (1200 MHz)
+
+	Out div is 8 bit from VCO
+ */
+void ConfigureClock(int target_khz)
+{
+	//do everything in integer kHz fixed point to avoid heavy soft float libs
+	int best_vcomult = 0;
+	int best_vcofreq = 0;
+	int best_outdiv = 0;
+	int best_indiv = 0;
+	int best_freq = 0;
+	int best_error = 500000;
+
+	for(int vcomult = 48; vcomult <= 96; vcomult ++)
+	{
+		int vco_khz = 12500 * vcomult;
+
+		//Prefer smaller multiply/divide if multiple of 25 MHz
+		int indiv = 2;
+		int realmult = vcomult;
+		if( (vcomult % 2) == 0)
+		{
+			indiv = 1;
+			realmult = vcomult / 2;
+		}
+
+		for(int outdiv = 1; outdiv < 255; outdiv ++)
+		{
+			int outfreq = vco_khz / outdiv;
+
+			//See if we got any closer to our target
+			int error = abs(outfreq - target_khz);
+			if(error < best_error)
+			{
+				best_vcomult = realmult;
+				best_vcofreq = vco_khz;
+				best_outdiv = outdiv;
+				best_indiv = indiv;
+				best_freq = outfreq;
+				best_error = error;
+			}
+		}
+	}
+
+	StartPLLReconfig();
+	ConfigurePLLVCO(best_indiv, best_vcomult);
+	ConfigurePLLOutput(0, best_outdiv, 0);
+	EndPLLReconfig();
+}
+
+void StartPLLReconfig()
+{
+	//g_log("Start reconfig\n");
+
+	WaitForPLLReady();
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0d);	//REG_PLL_CTL
+	g_spi->BlockingWrite(0x01);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+}
+
+void EndPLLReconfig()
+{
+	//g_log("Finish up\n");
+
+	//WaitForPLLReady();
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0d);	//REG_PLL_CTL
+	g_spi->BlockingWrite(0x02);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	WaitForPLLLocked();
+}
+
+void ConfigurePLLVCO(int indiv, int mult)
+{
+	WaitForPLLReady();
+
+	//g_log("Configure VCO (indiv=%d, mult=%d)\n", indiv, mult);
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x06);	//REG_PLL_VCO_MULT
+	g_spi->BlockingWrite(mult);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x07);	//REG_PLL_VCO_INDIV
+	g_spi->BlockingWrite(indiv);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x08);	//REG_PLL_VCO_CFG
+	g_spi->BlockingWrite(0x0);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+}
+
+void ConfigurePLLOutput(int chan, int div, int phase)
+{
+	WaitForPLLReady();
+
+	//g_log("Configure output (channel %d, div=%d, phase=%d)\n", chan, div, phase);
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x09);	//REG_PLL_OUT_DIV
+	g_spi->BlockingWrite(div);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0a);	//REG_PLL_OUT_PHASELO
+	g_spi->BlockingWrite(phase & 0xff);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0b);	//REG_PLL_OUT_PHASEHI
+	g_spi->BlockingWrite(phase >> 8);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0c);	//REG_PLL_OUT_IDX
+	g_spi->BlockingWrite(chan & 7);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+}
+
+void WaitForPLLReady()
+{
+	while(true)
+	{
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x0e);	//REG_PLL_STAT
+		auto result = g_spi->BlockingRead();
+		*g_csn = 1;
+
+		if( (result & 3) == 0)
+			return;
+	}
+}
+
+void WaitForPLLLocked()
+{
+	//g_log("Wait for lock\n");
+
+	while(true)
+	{
+		*g_csn = 0;
+		g_spi->BlockingWrite(0x0e);	//REG_PLL_STAT
+		auto result = g_spi->BlockingRead();
+		*g_csn = 1;
+
+		if( (result & 4) == 4)
+			return;
+	}
+
+	g_log("Locked\n");
+}
