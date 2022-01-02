@@ -75,7 +75,8 @@ module top(
 	assign		clk_mgmt = clk_25mhz;
 
 	wire		clk_mem;
-	wire[5:0]	unused;
+	wire		clk_readcap;
+	wire[4:0]	unused;
 
 	logic		pll_reset				= 0;
 	wire		pll_locked;
@@ -101,11 +102,13 @@ module top(
 		.IN0_PERIOD(40.0),		//25 MHz
 		.IN1_PERIOD(40.0),
 		.OUT0_MIN_PERIOD(5),	//200 MHz
-		.ACTIVE_ON_START(0)
+		.OUT1_MIN_PERIOD(5),	//200 MHz
+		.ACTIVE_ON_START(0),
+		.OUT1_DEFAULT_PHASE(51.48)	//at 200 MHz, this is a ~715 ps phase delay
 	) pll (
 		.clkin({clk_25mhz, clk_25mhz}),
 		.clksel(1'b0),
-		.clkout({unused, clk_mem}),
+		.clkout({unused, clk_readcap, clk_mem}),
 
 		.reset(pll_reset),
 		.locked(pll_locked),
@@ -208,6 +211,7 @@ module top(
 
 	MemoryTester tester(
 		.clk(clk_mem),
+		.clk_readcap(clk_readcap),
 
 		.fill_start(fill_start_sync),
 		.prbs_seed(31'h5eadbeef),

@@ -32,6 +32,9 @@ module MemoryTester(
 	//Our input clock (2x SRAM clock)
 	input wire			clk,
 
+	//Separate clock for read capture (delayed ~715 ps behind main clock)
+	input wire			clk_readcap,
+
 	//Control signals
 	input wire			fill_start,
 	input wire[30:0]	prbs_seed,
@@ -73,7 +76,7 @@ module MemoryTester(
 	(* IOB = "TRUE" *)
 	logic[7:0]	rdata1_ff	= 0;
 
-	always_ff @(posedge clk) begin
+	always_ff @(posedge clk_readcap) begin
 		rdata0_ff	<= rdata0;
 		rdata1_ff	<= rdata1;
 	end
