@@ -39,6 +39,7 @@ enum cmdid_t
 {
 	CMD_DUAL_PORT,
 	CMD_FREQUENCY,
+	CMD_FPSHMOO,
 	CMD_FVSHMOO,
 	CMD_OPERATION,
 	CMD_RETENTION,
@@ -74,6 +75,7 @@ static const clikeyword_t g_operationCommands[] =
 static const clikeyword_t g_rootCommands[] =
 {
 	{"frequency",		CMD_FREQUENCY,			NULL,						"Frequency test"},
+	{"fpshmoo",			CMD_FPSHMOO,			g_operationCommands,		"Frequency vs capture phase shmoo"},
 	{"fvshmoo",			CMD_FVSHMOO,			g_operationCommands,		"Frequency vs voltage shmoo"},
 	{"operation",		CMD_OPERATION,			g_operationCommands,		"Operation voltage test"},
 	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
@@ -112,6 +114,10 @@ void BringupCLISessionContext::OnExecute()
 	{
 		case CMD_FREQUENCY:
 			OnClockFrequencyTest();
+			break;
+
+		case CMD_FPSHMOO:
+			OnFrequencyPhaseShmoo(m_command[1].m_commandID == CMD_DUAL_PORT);
 			break;
 
 		case CMD_FVSHMOO:
@@ -175,6 +181,61 @@ void BringupCLISessionContext::OnClockFrequencyTest()
 		for(int i=0; i<256; i++)
 			badbits += __builtin_popcount(results[i]);
 		g_uart->Printf("%3d, %3d, %d\n", mhz, mhz/2, badbits);
+	}
+
+	ConfigureClock(25 * 1000);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "fpshmoo"
+
+void BringupCLISessionContext::OnFrequencyPhaseShmoo(bool dualport)
+{
+	if(dualport)
+		g_uart->Printf("Running dual port operating frequency vs capture phase shmoo\n");
+	else
+		g_uart->Printf("Running single port operating frequency vs capture phase shmoo\n");
+
+	//Run this test at a constant 1.8V
+	SetDutVcore(1800);
+	SleepMs(10);
+
+	//Print header
+	g_uart->Printf(",       ");
+	for(int ram_mhz = 10; ram_mhz <= 45; ram_mhz ++)
+		g_uart->Printf("%4d, ", ram_mhz);
+	g_uart->Printf("\n");
+
+	uint8_t results1[256] = {0};
+	uint8_t results2[256] = {0};
+	for(int phase = 11000; phase >= 2000; phase -= 200)
+	{
+		g_uart->Printf("%5d, ", phase);
+
+		for(int mhz = 10; mhz <= 45; mhz ++)
+		{
+			ConfigureClock(mhz * 2 * 1000, phase);	//ram clock is half PLL freq
+
+			ClearResults();
+			FillMemory();
+
+			if(dualport)
+				VerifyDualPort();
+			else
+				VerifyPort0();
+			GetResultsPort0(results1);
+			if(dualport)
+				GetResultsPort1(results2);
+			else
+				memset(results2, 0, sizeof(results2));
+
+			int badbits = 0;
+			for(int i=0; i<256; i++)
+				badbits += __builtin_popcount(results1[i] | results2[i]);
+			g_uart->Printf("%4d, ", badbits);
+		}
+
+		g_uart->Printf("\n");
 	}
 
 	ConfigureClock(25 * 1000);

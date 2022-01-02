@@ -314,7 +314,7 @@ void SleepMs(uint32_t ms)
 
 	Out div is 8 bit from VCO
  */
-void ConfigureClock(int target_khz)
+void ConfigureClock(int target_khz, int target_phase)
 {
 	//do everything in integer kHz fixed point to avoid heavy soft float libs
 	int best_vcomult = 0;
@@ -366,7 +366,7 @@ void ConfigureClock(int target_khz)
 	int input_ps = 40000;
 	int vco_ps = input_ps * best_indiv / best_vcomult;
 	int phase_tap_ps = vco_ps / 8;
-	int phase_taps = 715 / phase_tap_ps;
+	int phase_taps = target_phase / phase_tap_ps;
 	//g_uart->Printf("Calculated: VCO period = %d, phase tap = %d, need %d taps\n",
 	//	vco_ps, phase_tap_ps, phase_taps);
 	ConfigurePLLOutput(1, best_outdiv, phase_taps);

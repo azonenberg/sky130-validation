@@ -52,7 +52,7 @@ void VerifyPort1();
 void VerifyDualPort();
 void GetResultsPort0(uint8_t* masks);
 void GetResultsPort1(uint8_t* masks);
-void ConfigureClock(int target_khz);
+void ConfigureClock(int target_khz, int target_phase = 715);
 void WaitForPLLReady();
 void WaitForPLLLocked();
 void StartPLLReconfig();
