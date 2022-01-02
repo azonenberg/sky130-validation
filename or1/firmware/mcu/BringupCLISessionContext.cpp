@@ -186,9 +186,9 @@ void BringupCLISessionContext::OnClockFrequencyTest()
 void BringupCLISessionContext::OnFrequencyVoltageShmoo(bool dualport)
 {
 	if(dualport)
-		g_uart->Printf("Running single port operating frequency vs voltage shmoo\n");
-	else
 		g_uart->Printf("Running dual port operating frequency vs voltage shmoo\n");
+	else
+		g_uart->Printf("Running single port operating frequency vs voltage shmoo\n");
 
 	//Print header
 	g_uart->Printf("vcore, ");
