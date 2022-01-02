@@ -357,7 +357,20 @@ void ConfigureClock(int target_khz)
 
 	StartPLLReconfig();
 	ConfigurePLLVCO(best_indiv, best_vcomult);
+
+	//Main output
 	ConfigurePLLOutput(0, best_outdiv, 0);
+
+	//Read capture clock
+	//We want a static delay of 715 ps, but the PLL delay is calculated in 1/8 VCO cycles
+	int input_ps = 40000;
+	int vco_ps = input_ps * best_indiv / best_vcomult;
+	int phase_tap_ps = vco_ps / 8;
+	int phase_taps = 715 / phase_tap_ps;
+	//g_uart->Printf("Calculated: VCO period = %d, phase tap = %d, need %d taps\n",
+	//	vco_ps, phase_tap_ps, phase_taps);
+	ConfigurePLLOutput(1, best_outdiv, phase_taps);
+
 	EndPLLReconfig();
 }
 
