@@ -1,0 +1,5 @@
+seems like thermal sensor on die 1 moved at some point
+die 3 got down to 6.7C via RTD, -2.5C via FLIR on top of package
+got up to 71.4C via RTD, 91.7C via FLIR on top of package
+
+die 2 measures 60.3C via RTD at max, 11.4C min
