@@ -18,7 +18,7 @@ $summary = array();
 for($row = 0; $row < 42; $row ++)
 {
 	$crow = array();
-	for($col = 0; $col < 20; $col ++)
+	for($col = 0; $col < 35; $col ++)
 		$crow[$col] = 0;
 	$summary[$row] = $crow;
 }
@@ -32,7 +32,7 @@ foreach($subdirs as $dir)
 		$line = $lines[$row];
 		$fields = explode(',', $line);
 
-		for($col = 0; $col < 20; $col ++)
+		for($col = 0; $col < 35; $col ++)
 		{
 			if(intval($fields[$col+1]) != 0)
 				$summary[$row][$col] ++;
@@ -42,7 +42,7 @@ foreach($subdirs as $dir)
 
 //print header
 echo " ,";
-for($i=10; $i<30; $i++)
+for($i=10; $i<46; $i++)
 	echo "$i, ";
 echo "\n";
 
@@ -51,7 +51,7 @@ for($row = 0; $row < 41; $row ++)
 {
 	$voltage = 1800 - (10*$row);
 	echo "$voltage,";
-	for($col = 0; $col < 20; $col ++)
+	for($col = 0; $col < 35; $col ++)
 		echo $summary[$row+1][$col] . ',';
 	echo "\n";
 }
