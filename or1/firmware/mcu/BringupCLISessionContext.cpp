@@ -246,14 +246,16 @@ void BringupCLISessionContext::OnFrequencyPhaseShmoo(bool dualport)
 
 void BringupCLISessionContext::OnFrequencyVoltageShmoo(bool dualport)
 {
+	int phase = 11000;
+
 	if(dualport)
-		g_uart->Printf("Running dual port operating frequency vs voltage shmoo\n");
+		g_uart->Printf("Running dual port operating frequency vs voltage shmoo with %d ps read capture delay\n", phase);
 	else
-		g_uart->Printf("Running single port operating frequency vs voltage shmoo\n");
+		g_uart->Printf("Running single port operating frequency vs voltage shmoo with %d ps read capture delay\n", phase);
 
 	//Print header
 	g_uart->Printf("vcore, ");
-	for(int ram_mhz = 10; ram_mhz < 30; ram_mhz ++)
+	for(int ram_mhz = 10; ram_mhz < 45; ram_mhz ++)
 		g_uart->Printf("%4d, ", ram_mhz);
 	g_uart->Printf("\n");
 
@@ -265,9 +267,9 @@ void BringupCLISessionContext::OnFrequencyVoltageShmoo(bool dualport)
 		SleepMs(10);
 		g_uart->Printf("%5d, ", vcore);
 
-		for(int mhz = 10; mhz < 30; mhz ++)
+		for(int mhz = 10; mhz < 45; mhz ++)
 		{
-			ConfigureClock(mhz * 2 * 1000);	//ram clock is half PLL freq
+			ConfigureClock(mhz * 2 * 1000, phase);	//ram clock is half PLL freq
 
 			ClearResults();
 			FillMemory();
