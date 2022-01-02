@@ -1,0 +1,6 @@
+FREQUENCY / PHASE SHMOO TEST
+VIO = constant 3.3V
+Vcore = constant 1.8V
+
+Sweep DUT frequency from 10 to 45 MHz
+Sweep read capture delay from 6.6 to 11 ns after C/A bus clock
