@@ -65,6 +65,20 @@ module MemoryTester(
 );
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Register read data
+
+	(* IOB = "TRUE" *)
+	logic[7:0]	rdata0_ff	= 0;
+
+	(* IOB = "TRUE" *)
+	logic[7:0]	rdata1_ff	= 0;
+
+	always_ff @(posedge clk) begin
+		rdata0_ff	<= rdata0;
+		rdata1_ff	<= rdata1;
+	end
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Port 0 state machine
 
 	wire[7:0] fill_prbs_out;
@@ -79,11 +93,14 @@ module MemoryTester(
 
 	logic		fill_start_ff		= 0;
 	logic[7:0]	addr0_ff			= 0;
+	logic[7:0]	addr0_ff2			= 0;
 	logic		p0_read_prbs_update	= 0;
 	logic		p0_fill_prbs_update	= 0;
 	logic		port0_done_adv		= 0;
 	logic		port0_rd			= 0;
 	logic		port0_rd_ff			= 0;
+	logic		port0_rd_ff2		= 0;
+	logic[7:0]	p0_read_prbs_out_ff	= 0;
 
 	always_ff @(posedge clk) begin
 
@@ -110,6 +127,11 @@ module MemoryTester(
 			state	<= STATE_FILL;
 		if(read_port0_start)
 			state	<= STATE_READ_P0;
+
+		//Pipeline delay on signals used by input capture
+		addr0_ff2			<= addr0_ff;
+		port0_rd_ff2		<= port0_rd_ff;
+		p0_read_prbs_out_ff	<= p0_read_prbs_out;
 
 		//Drive outputs on falling edge of clk0 (currently 1, going to 0 next cycle) to maximize setup window
 		if(clk0) begin
@@ -169,14 +191,15 @@ module MemoryTester(
 
 		end
 
-		//Read results on the rising edge (currently 0, going to 1 next cycle)
-		else begin
+		//Read results are captured on the rising edge but pipelined, so we see them the next internal clock cycle
+		//(falling edge of clk0)
+		if(clk0) begin
 
 			//Report failures
-			if(port0_rd_ff && (rdata0 != p0_read_prbs_out) ) begin
+			if(port0_rd_ff2 && (rdata0_ff != p0_read_prbs_out_ff) ) begin
 				port0_fail		<= 1;
-				port0_fail_addr	<= addr0_ff;
-				port0_fail_mask	<= rdata0 ^ p0_read_prbs_out;
+				port0_fail_addr	<= addr0_ff2;
+				port0_fail_mask	<= rdata0_ff ^ p0_read_prbs_out_ff;
 			end
 
 		end
@@ -187,12 +210,15 @@ module MemoryTester(
 	// Port 1 state machine
 
 	logic[7:0]	addr1_ff			= 0;
+	logic[7:0]	addr1_ff2			= 0;
 	logic		p1_busy				= 0;
 	logic		p1_read_prbs_update	= 0;
 	wire[7:0]	p1_read_prbs_out;
+	logic[7:0]	p1_read_prbs_out_ff	= 0;
 	logic		port1_done_adv		= 0;
 	logic		port1_rd			= 0;
 	logic		port1_rd_ff			= 0;
+	logic		port1_rd_ff2		= 0;
 
 	always_ff @(posedge clk) begin
 
@@ -211,6 +237,11 @@ module MemoryTester(
 		//Start command can happen at an even OR odd cycle boundary
 		if(read_port1_start)
 			p1_busy			<= 1;
+
+		//Pipeline delay for signals used by read capture
+		port1_rd_ff2		<= port1_rd_ff;
+		addr1_ff2			<= addr1_ff;
+		p1_read_prbs_out_ff	<= p1_read_prbs_out;
 
 		//Drive outputs on falling edge of clk1 (currently 1, going to 0 next cycle) to maximize setup window
 		if(clk1) begin
@@ -250,14 +281,15 @@ module MemoryTester(
 
 		end
 
-		//Read results on the rising edge (currently 0, going to 1 next cycle)
-		else begin
+		//Read results are captured on the rising edge but pipelined, so we see them the next internal clock cycle
+		//(falling edge of clk1)
+		if(clk0) begin
 
 			//Report failures
-			if(port1_rd_ff && (rdata1 != p1_read_prbs_out) ) begin
+			if(port1_rd_ff2 && (rdata1_ff != p1_read_prbs_out_ff) ) begin
 				port1_fail		<= 1;
-				port1_fail_addr	<= addr1_ff;
-				port1_fail_mask	<= rdata1 ^ p1_read_prbs_out;
+				port1_fail_addr	<= addr1_ff2;
+				port1_fail_mask	<= rdata1_ff ^ p1_read_prbs_out_ff;
 			end
 
 		end

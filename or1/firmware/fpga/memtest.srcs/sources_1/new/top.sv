@@ -318,7 +318,7 @@ module top(
 		table_wr_p1	<= 0;
 
 		//Reset addresses when beginning a clear cycle
-		if(clear_start) begin
+		if(clear_start_sync) begin
 			table_waddr_p0	<= 8'hff;
 			table_waddr_p1	<= 8'hff;
 		end
