@@ -474,8 +474,6 @@ void WaitForPLLReady()
 
 void WaitForPLLLocked()
 {
-	//g_log("Wait for lock\n");
-
 	while(true)
 	{
 		*g_csn = 0;
@@ -486,6 +484,31 @@ void WaitForPLLLocked()
 		if( (result & 4) == 4)
 			return;
 	}
+}
 
-	g_log("Locked\n");
+void SetPRBSSeed(uint32_t seed)
+{
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x0f);	//REG_PRBS_SEED_0
+	g_spi->BlockingWrite(seed >> 24);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x10);	//REG_PRBS_SEED_1
+	g_spi->BlockingWrite((seed >> 16) & 0xff);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x11);	//REG_PRBS_SEED_2
+	g_spi->BlockingWrite((seed >> 8) & 0xff);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
+
+	*g_csn = 0;
+	g_spi->BlockingWrite(0x12);	//REG_PRBS_SEED_3
+	g_spi->BlockingWrite(seed & 0xff);
+	g_spi->WaitForWrites();
+	*g_csn = 1;
 }

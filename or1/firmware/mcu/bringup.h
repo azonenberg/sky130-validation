@@ -59,6 +59,7 @@ void StartPLLReconfig();
 void ConfigurePLLVCO(int indiv, int mult);
 void ConfigurePLLOutput(int chan, int div, int phase);
 void EndPLLReconfig();
+void SetPRBSSeed(uint32_t seed);
 
 extern UART* 			g_uart;
 extern I2C*				g_i2c;

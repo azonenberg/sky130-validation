@@ -64,6 +64,7 @@ protected:
 	void OnClockFrequencyTest();
 	void OnFrequencyVoltageShmoo(bool dualport);
 	void OnFrequencyPhaseShmoo(bool dualport);
+	void OnOperatingVoltageMap(bool dualport);
 
 	void MakeSureFPGAIsUp();
 

@@ -209,12 +209,14 @@ module top(
 	wire[7:0]	port1_fail_addr;
 	wire[7:0]	port1_fail_mask;
 
+	logic[30:0]	prbs_seed = 32'h5eadbeef;
+
 	MemoryTester tester(
 		.clk(clk_mem),
 		.clk_readcap(clk_readcap),
 
 		.fill_start(fill_start_sync),
-		.prbs_seed(31'h5eadbeef),
+		.prbs_seed(prbs_seed),
 		.read_port0_start(read_port0_start_sync),
 		.read_port1_start(read_port1_start_sync),
 
@@ -406,10 +408,14 @@ module top(
 		REG_PLL_CTL			= 8'h0d,		//0		Write 1 to start the reconfiguration process
 											//1		Write 1 to end the reconfiguration process
 
-		REG_PLL_STAT		= 8'h0e			//0		PLL reconfiguration operation in progress
+		REG_PLL_STAT		= 8'h0e,		//0		PLL reconfiguration operation in progress
 											//1		PLL initializing after reset
 											//2		PLL locked
 
+		REG_PRBS_SEED_0		= 8'h0f,		//PRBS seed 30:24
+		REG_PRBS_SEED_1		= 8'h10,		//PRBS seed 23:16
+		REG_PRBS_SEED_2		= 8'h11,		//PRBS seed 15:8
+		REG_PRBS_SEED_3		= 8'h12			//PRBS seed 7:0
 	} register_t;
 
 	enum logic[3:0]
@@ -418,7 +424,8 @@ module top(
 		STATE_END		= 1,
 		STATE_COMMAND	= 2,
 		STATE_ADDRESS	= 3,
-		STATE_PLL_REG	= 4
+		STATE_PLL_REG	= 4,
+		STATE_SEED_REG	= 5
 	} state = STATE_IDLE;
 
 	logic		reconfig_busy	= 0;
@@ -493,6 +500,12 @@ module top(
 						state				<= STATE_PLL_REG;
 					end
 
+					if( (spi_rx_data >= REG_PRBS_SEED_0) && (spi_rx_data <= REG_PRBS_SEED_3) ) begin
+						spi_tx_data_valid	<= 1;
+						spi_tx_data			<= 8'h0;
+						state				<= STATE_SEED_REG;
+					end
+
 				end
 
 			end	//end STATE_IDLE
@@ -540,6 +553,28 @@ module top(
 				end
 
 			end	//end STATE_PLL_REG
+
+			//Writing a PRBS seed register
+			STATE_SEED_REG: begin
+
+				if(spi_rx_data_valid) begin
+
+					case(current_regid)
+
+						REG_PRBS_SEED_0: 		prbs_seed[30:24]		<= spi_rx_data[6:0];
+						REG_PRBS_SEED_1: 		prbs_seed[23:16]		<= spi_rx_data[7:0];
+						REG_PRBS_SEED_2: 		prbs_seed[15:8]			<= spi_rx_data[7:0];
+						REG_PRBS_SEED_3: 		prbs_seed[7:0]			<= spi_rx_data[7:0];
+						default: begin
+						end
+
+					endcase
+
+					state	<= STATE_END;
+
+				end
+
+			end	//end STATE_SEED_REG
 
 			//Command
 			STATE_COMMAND: begin

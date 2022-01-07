@@ -45,7 +45,8 @@ enum cmdid_t
 	CMD_RETENTION,
 	CMD_SINGLE_PORT,
 	CMD_TEST,
-	CMD_VCORE
+	CMD_VCORE,
+	CMD_VMAP,
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,7 @@ static const clikeyword_t g_rootCommands[] =
 	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
 	{"test",			CMD_TEST,				NULL,						"Test memory"},
 	{"vcore",			CMD_VCORE,				g_vcoreCommands,			"Set DUT core voltage"},
+	{"vmap",			CMD_VMAP,				g_operationCommands,		"Minimum voltage map"},
 
 	{NULL,				INVALID_COMMAND,		NULL,						NULL}
 };
@@ -138,6 +140,10 @@ void BringupCLISessionContext::OnExecute()
 
 		case CMD_VCORE:
 			OnVcore(atoi(m_command[1].m_text));
+			break;
+
+		case CMD_VMAP:
+			OnOperatingVoltageMap(m_command[1].m_commandID == CMD_DUAL_PORT);
 			break;
 
 		default:
@@ -403,4 +409,107 @@ void BringupCLISessionContext::OnTest()
 		if(results[i] != 0)
 			g_uart->Printf("%02x: %02x\n", i, results[i]);
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "vmap"
+
+void BringupCLISessionContext::OnOperatingVoltageMap(bool dualport)
+{
+	const int testvmax = 1800;
+	const int testvmin = 600;
+
+	const int mhz = 20;
+	const int capturedelay = 11000;
+	ConfigureClock(mhz * 2 * 1000, capturedelay);
+	g_uart->Printf("Running operating voltage map at %d MHz, %d ps read capture delay\n", mhz, capturedelay);
+
+	g_uart->Printf("addr, bit0,  bit1,  bit2,  bit3,  bit4,  bit5,  bit6,  bit7\n");
+
+	//We don't have enough RAM to store the minimum voltage for every bit of every byte!
+	//This requires a bit of duplicated effort, testing the entire array
+	//but only actually processing 16 bytes per block.
+	for(int block=0; block<16; block++)
+	{
+		//g_uart->Printf("Block %d\n", block);
+
+		uint16_t blockmin[128];						//16 bytes * 8 bits
+		memset(blockmin, 0x00, sizeof(blockmin));
+
+		//Repeat the test on the entire block and report the highest failing voltage
+		for(int i=0; i<5; i++)
+		{
+			//g_uart->Printf("Iteration %d\n", i);
+
+			SetPRBSSeed(0x5eadbeef + i);
+
+			for(int mv = testvmax; mv > testvmin; mv -= 10)
+			{
+				//Fill the memory
+				SetDutVcore(mv);
+				SleepMs(10);
+				ClearResults();
+				FillMemory();
+
+				//Wait for retention period
+				SleepMs(25);
+
+				//Read back
+				uint8_t results1[256] = {0};
+				uint8_t results2[256] = {0};
+				if(dualport)
+					VerifyDualPort();
+				else
+					VerifyPort0();
+				GetResultsPort0(results1);
+				if(dualport)
+					GetResultsPort1(results2);
+				else
+					memset(results2, 0, sizeof(results2));
+
+				for(int off=0; off<16; off++)
+				{
+					//Find which bits are bad in this byte (from either port)
+					int addr = block*16 + off;
+					uint8_t mask = results1[addr] | results2[addr];
+					if(mask == 0)
+						continue;
+
+					for(int nbit=0; nbit<8; nbit ++)
+					{
+						//bit is good, nothing to do
+						if( ( (mask >> nbit) & 1) == 0)
+							continue;
+
+						//Bit is bad. Did we already fail at a higher voltage?
+						int bindex = off*8 + nbit;
+						if(blockmin[bindex] > mv)
+							continue;
+
+						//Nope, first time it failed. Save the current voltage
+						blockmin[bindex] = mv;
+					}
+				}
+			}
+		}
+
+		//Done, summarize results
+		for(int i=0; i<16; i++)
+		{
+			g_uart->Printf("%4d, %5d, %5d, %5d, %5d, %5d, %5d, %5d, %5d\n",
+				block*16 + i,
+				blockmin[i*8 + 0],
+				blockmin[i*8 + 1],
+				blockmin[i*8 + 2],
+				blockmin[i*8 + 3],
+				blockmin[i*8 + 4],
+				blockmin[i*8 + 5],
+				blockmin[i*8 + 6],
+				blockmin[i*8 + 7]
+			);
+		}
+	}
+
+	//restore default
+	SetPRBSSeed(0x5eadbeef);
 }
