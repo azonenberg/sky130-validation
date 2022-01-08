@@ -50,6 +50,7 @@ void SendCommand(uint8_t cmd);
 void VerifyPort0();
 void VerifyPort1();
 void VerifyDualPort();
+void FillVerifyFeedthrough();
 void GetResultsPort0(uint8_t* masks);
 void GetResultsPort1(uint8_t* masks);
 void ConfigureClock(int target_khz, int target_phase = 715);

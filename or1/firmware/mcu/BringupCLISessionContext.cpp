@@ -43,6 +43,7 @@ enum cmdid_t
 	CMD_FVSHMOO,
 	CMD_OPERATION,
 	CMD_RETENTION,
+	CMD_RWSHMOO,
 	CMD_SINGLE_PORT,
 	CMD_TEST,
 	CMD_VCORE,
@@ -80,6 +81,7 @@ static const clikeyword_t g_rootCommands[] =
 	{"fvshmoo",			CMD_FVSHMOO,			g_operationCommands,		"Frequency vs voltage shmoo"},
 	{"operation",		CMD_OPERATION,			g_operationCommands,		"Operation voltage test"},
 	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
+	{"rwshmoo",			CMD_RWSHMOO,			NULL,						"Frequency vs voltage shmoo with simultaneous R+W"},
 	{"test",			CMD_TEST,				NULL,						"Test memory"},
 	{"vcore",			CMD_VCORE,				g_vcoreCommands,			"Set DUT core voltage"},
 	{"vmap",			CMD_VMAP,				g_operationCommands,		"Minimum voltage map"},
@@ -132,6 +134,10 @@ void BringupCLISessionContext::OnExecute()
 
 		case CMD_RETENTION:
 			OnRetentionTest();
+			break;
+
+		case CMD_RWSHMOO:
+			OnReadWriteShmoo();
 			break;
 
 		case CMD_TEST:
@@ -512,4 +518,45 @@ void BringupCLISessionContext::OnOperatingVoltageMap(bool dualport)
 
 	//restore default
 	SetPRBSSeed(0x5eadbeef);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "rwshmoo"
+
+void BringupCLISessionContext::OnReadWriteShmoo()
+{
+	int phase = 11000;
+	g_uart->Printf("Running simultaneous R+W operating frequency vs voltage shmoo with %d ps read capture delay\n", phase);
+
+	//Print header
+	g_uart->Printf("vcore, ");
+	for(int ram_mhz = 10; ram_mhz < 45; ram_mhz ++)
+		g_uart->Printf("%4d, ", ram_mhz);
+	g_uart->Printf("\n");
+
+	uint8_t results[256] = {0};
+	for(int vcore = 1800; vcore >= 1400; vcore -= 10)
+	{
+		SetDutVcore(vcore);
+		SleepMs(10);
+		g_uart->Printf("%5d, ", vcore);
+
+		for(int mhz = 10; mhz < 45; mhz ++)
+		{
+			ConfigureClock(mhz * 2 * 1000, phase);	//ram clock is half PLL freq
+
+			ClearResults();
+			FillVerifyFeedthrough();
+			GetResultsPort1(results);
+
+			int badbits = 0;
+			for(int i=0; i<256; i++)
+				badbits += __builtin_popcount(results[i]);
+			g_uart->Printf("%4d, ", badbits);
+		}
+
+		g_uart->Printf("\n");
+	}
+
+	ConfigureClock(25 * 1000);
 }

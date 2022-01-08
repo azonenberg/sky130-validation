@@ -257,6 +257,15 @@ void VerifyDualPort()
 	{}
 }
 
+void FillVerifyFeedthrough()
+{
+	SendCommand(0x05);	//Fill on port 0 and verify on port 1 simultaneously
+
+	//Block until not busy
+	while( (GetFPGAStatus() & 3) != 0)
+	{}
+}
+
 void GetResultsPort0(uint8_t* masks)
 {
 	for(int addr=0; addr<=0xff; addr ++)
