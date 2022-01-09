@@ -162,40 +162,39 @@ module top(
 	logic		read_port1_start	= 0;
 	logic		clear_start			= 0;
 
-	//Control flags in SRAM clock domain
-	wire		fill_start_sync;
-	wire		clear_start_sync;
-	wire		read_port0_start_sync;
-	wire		read_port1_start_sync;
+	//Command flag
+	logic		cmd_en				= 0;
+	wire		cmd_en_sync;
 
 	//Synchronizers
-	PulseSynchronizer sync_fill_start(
+	PulseSynchronizer sync_cmd_en(
 		.clk_a(clk_mgmt),
-		.pulse_a(fill_start),
+		.pulse_a(cmd_en),
 		.clk_b(clk_mem),
-		.pulse_b(fill_start_sync)
+		.pulse_b(cmd_en_sync)
 	);
 
-	PulseSynchronizer sync_clear_start(
-		.clk_a(clk_mgmt),
-		.pulse_a(clear_start),
-		.clk_b(clk_mem),
-		.pulse_b(clear_start_sync)
-	);
+	//Control flags in SRAM clock domain
+	logic		fill_start_sync			= 0;
+	logic		clear_start_sync		= 0;
+	logic		read_port0_start_sync	= 0;
+	logic		read_port1_start_sync	= 0;
 
-	PulseSynchronizer sync_read_port0_start(
-		.clk_a(clk_mgmt),
-		.pulse_a(read_port0_start),
-		.clk_b(clk_mem),
-		.pulse_b(read_port0_start_sync)
-	);
+	always_ff @(posedge clk_mem) begin
 
-	PulseSynchronizer sync_read_port1_start(
-		.clk_a(clk_mgmt),
-		.pulse_a(read_port1_start),
-		.clk_b(clk_mem),
-		.pulse_b(read_port1_start_sync)
-	);
+		fill_start_sync			<= 0;
+		clear_start_sync		<= 0;
+		read_port0_start_sync	<= 0;
+		read_port1_start_sync	<= 0;
+
+		if(cmd_en_sync) begin
+			fill_start_sync			<= fill_start;
+			clear_start_sync		<= clear_start;
+			read_port0_start_sync	<= read_port0_start;
+			read_port1_start_sync	<= read_port1_start;
+		end
+
+	end
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// SRAM tester
@@ -433,12 +432,10 @@ module top(
 
 	always_ff @(posedge clk_mgmt) begin
 
-		fill_start			<= 0;
-		read_port0_start	<= 0;
-		read_port1_start	<= 0;
-		clear_start			<= 0;
 		spi_tx_data_valid	<= 0;
 		table_rd			<= 0;
+
+		cmd_en				<= 0;
 
 		reconfig_vco_en		<= 0;
 		reconfig_output_en	<= 0;
@@ -584,6 +581,7 @@ module top(
 					read_port0_start	<= spi_rx_data[1];
 					read_port1_start	<= spi_rx_data[2];
 					clear_start			<= spi_rx_data[3];
+					cmd_en				<= 1;
 					state				<= STATE_END;
 				end
 
