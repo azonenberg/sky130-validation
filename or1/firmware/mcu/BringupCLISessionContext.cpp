@@ -44,10 +44,20 @@ enum cmdid_t
 	CMD_OPERATION,
 	CMD_RETENTION,
 	CMD_RWSHMOO,
+	CMD_RWTEST,
 	CMD_SINGLE_PORT,
 	CMD_TEST,
 	CMD_VCORE,
 	CMD_VMAP,
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "test"
+
+static const clikeyword_t g_testCommands[] =
+{
+	{"<string>",		FREEFORM_TOKEN,			NULL,						"Port number to test readback on"},
+	{NULL,				INVALID_COMMAND,		NULL,						NULL}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +92,8 @@ static const clikeyword_t g_rootCommands[] =
 	{"operation",		CMD_OPERATION,			g_operationCommands,		"Operation voltage test"},
 	{"retention",		CMD_RETENTION,			NULL,						"Retention voltage test"},
 	{"rwshmoo",			CMD_RWSHMOO,			NULL,						"Frequency vs voltage shmoo with simultaneous R+W"},
-	{"test",			CMD_TEST,				NULL,						"Test memory"},
+	{"rwtest",			CMD_RWTEST,				NULL,						"Single point test of simultaneous R+W"},
+	{"test",			CMD_TEST,				g_testCommands,				"Test memory"},
 	{"vcore",			CMD_VCORE,				g_vcoreCommands,			"Set DUT core voltage"},
 	{"vmap",			CMD_VMAP,				g_operationCommands,		"Minimum voltage map"},
 
@@ -140,8 +151,12 @@ void BringupCLISessionContext::OnExecute()
 			OnReadWriteShmoo();
 			break;
 
+		case CMD_RWTEST:
+			OnReadWriteTest();
+			break;
+
 		case CMD_TEST:
-			OnTest();
+			OnTest(atoi(m_command[1].m_text));
 			break;
 
 		case CMD_VCORE:
@@ -400,14 +415,21 @@ void BringupCLISessionContext::OnRetentionTest()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // "test"
 
-void BringupCLISessionContext::OnTest()
+void BringupCLISessionContext::OnTest(int nport)
 {
 	ClearResults();
 	FillMemory();
-	VerifyPort0();
-
 	uint8_t results[256] = {0};
-	GetResultsPort0(results);
+	if(nport == 0)
+	{
+		VerifyPort0();
+		GetResultsPort0(results);
+	}
+	else
+	{
+		VerifyPort1();
+		GetResultsPort1(results);
+	}
 
 	g_uart->Printf("Process results\n");
 	for(int i=0; i<256; i++)
@@ -545,6 +567,8 @@ void BringupCLISessionContext::OnReadWriteShmoo()
 		{
 			ConfigureClock(mhz * 2 * 1000, phase);	//ram clock is half PLL freq
 
+			SetPRBSSeed(0x5eadbeef + vcore + mhz);
+
 			ClearResults();
 			FillVerifyFeedthrough();
 			GetResultsPort1(results);
@@ -558,5 +582,28 @@ void BringupCLISessionContext::OnReadWriteShmoo()
 		g_uart->Printf("\n");
 	}
 
+	//restore default
+	SetPRBSSeed(0x5eadbeef);
 	ConfigureClock(25 * 1000);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "rwtest"
+
+void BringupCLISessionContext::OnReadWriteTest()
+{
+	g_uart->Printf("Running simultaneous R+W operating frequency vs voltage test\n");
+
+	ClearResults();
+	FillVerifyFeedthrough();
+
+	uint8_t results[256] = {0};
+	GetResultsPort1(results);
+
+	g_uart->Printf("Process results\n");
+	for(int i=0; i<256; i++)
+	{
+		if(results[i] != 0)
+			g_uart->Printf("%02x: %02x\n", i, results[i]);
+	}
 }

@@ -138,6 +138,8 @@ int main()
 			g_uartStream.Flush();
 			g_uart->Printf("\n");
 			g_log("FPGA is up\n");
+
+			ConfigureClock(10 * 2 * 1000, 11000);	//start clock
 		}
 		if(!done && g_fpgaUp)
 		{

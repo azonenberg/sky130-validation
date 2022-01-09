@@ -58,12 +58,13 @@ protected:
 	virtual void OnExecute();
 
 	void OnVcore(int mv);
-	void OnTest();
+	void OnTest(int nport);
 	void OnRetentionTest();
 	void OnOperatingVoltageTest(bool dualport);
 	void OnClockFrequencyTest();
 	void OnFrequencyVoltageShmoo(bool dualport);
 	void OnReadWriteShmoo();
+	void OnReadWriteTest();
 	void OnFrequencyPhaseShmoo(bool dualport);
 	void OnOperatingVoltageMap(bool dualport);
 

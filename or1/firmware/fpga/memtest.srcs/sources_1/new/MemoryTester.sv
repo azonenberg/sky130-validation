@@ -52,11 +52,17 @@ module MemoryTester(
 	output logic[7:0]	port1_fail_mask	= 0,
 
 	//Memory port 0
+	(* IOB = "TRUE" *)
 	output logic		clk0	= 0,
+	(* IOB = "TRUE" *)
 	output logic		cs0_n	= 1,
+	(* IOB = "TRUE" *)
 	output logic		we0_n	= 1,
+	(* IOB = "TRUE" *)
 	output logic[3:0]	wmask0	= 0,
+	(* IOB = "TRUE" *)
 	output logic[7:0]	addr0	= 0,
+	(* IOB = "TRUE" *)
 	output logic[7:0]	wdata0	= 0,
 	input wire[7:0]		rdata0,
 
@@ -97,21 +103,40 @@ module MemoryTester(
 		STATE_READ_P0		= 2
 	} state = STATE_IDLE;
 
-	logic		fill_start_ff		= 0;
-	logic[7:0]	addr0_ff			= 0;
-	logic[7:0]	addr0_ff2			= 0;
-	logic		p0_read_prbs_update	= 0;
-	logic		p0_fill_prbs_update	= 0;
-	logic		port0_done_adv		= 0;
-	logic		port0_rd			= 0;
-	logic		port0_rd_ff			= 0;
-	logic		port0_rd_ff2		= 0;
-	logic[7:0]	p0_read_prbs_out_ff	= 0;
+	logic		fill_start_ff			= 0;
+	logic[7:0]	addr0_ff				= 0;
+	logic[7:0]	addr0_ff2				= 0;
+	logic[7:0]	addr0_ff3				= 0;
+	logic		p0_read_prbs_update		= 0;
+	logic		p0_fill_prbs_update		= 0;
+	logic		port0_done_adv			= 0;
+	logic		port0_rd				= 0;
+	logic		port0_rd_ff				= 0;
+	logic		port0_rd_ff2			= 0;
+	logic		port0_rd_ff3			= 0;
+	logic[7:0]	p0_read_prbs_out_ff		= 0;
+	logic[7:0]	p0_read_prbs_out_ff2	= 0;
+
+	//Internal signals (output pins register off these)
+	logic		clk0_adv				= 0;
+	logic[7:0]	addr0_adv				= 0;
+	logic		cs0_n_adv				= 1;
+	logic		we0_n_adv				= 1;
+	logic[3:0]	wmask0_adv				= 0;
+	logic[7:0]	wdata0_adv				= 0;
 
 	always_ff @(posedge clk) begin
 
+		//Register outputs
+		clk0				<= clk0_adv;
+		addr0				<= addr0_adv;
+		cs0_n				<= cs0_n_adv;
+		we0_n				<= we0_n_adv;
+		wmask0				<= wmask0_adv;
+		wdata0				<= wdata0_adv;
+
 		//Toggle clocks
-		clk0				<= !clk0;
+		clk0_adv			<= !clk0_adv;
 
 		//Save delayed flags
 		fill_start_ff		<= fill_start;
@@ -135,23 +160,26 @@ module MemoryTester(
 			state	<= STATE_READ_P0;
 
 		//Pipeline delay on signals used by input capture
-		addr0_ff2			<= addr0_ff;
-		port0_rd_ff2		<= port0_rd_ff;
-		p0_read_prbs_out_ff	<= p0_read_prbs_out;
+		addr0_ff2				<= addr0_ff;
+		addr0_ff3				<= addr0_ff2;
+		port0_rd_ff2			<= port0_rd_ff;
+		port0_rd_ff3			<= port0_rd_ff2;
+		p0_read_prbs_out_ff		<= p0_read_prbs_out;
+		p0_read_prbs_out_ff2	<= p0_read_prbs_out_ff;
 
 		//Drive outputs on falling edge of clk0 (currently 1, going to 0 next cycle) to maximize setup window
-		if(clk0) begin
+		if(clk0_adv) begin
 
 			//Clear memory side flags
-			cs0_n		<= 1;
-			we0_n		<= 1;
+			cs0_n_adv	<= 1;
+			we0_n_adv	<= 1;
 
 			//If we did a read last cycle, data should be ready this cycle
 			port0_rd	<= 0;
 			port0_rd_ff	<= port0_rd;
 
 			//Save the address of the previous command
-			addr0_ff	<= addr0;
+			addr0_ff	<= addr0_adv;
 
 			case(state)
 
@@ -159,20 +187,20 @@ module MemoryTester(
 
 					//set address to -1 mod 2^8
 					//so after first increment, we start at 0
-					addr0	<= 8'hff;
+					addr0_adv	<= 8'hff;
 
 				end	//end STATE_IDLE
 
 				STATE_FILL: begin
-					cs0_n				<= 0;
-					we0_n				<= 0;
-					wmask0				<= 4'hf;
-					addr0				<= addr0 + 1;
-					wdata0				<= fill_prbs_out;
+					cs0_n_adv			<= 0;
+					we0_n_adv			<= 0;
+					wmask0_adv			<= 4'hf;
+					addr0_adv			<= addr0_adv + 1;
+					wdata0_adv			<= fill_prbs_out;
 					p0_fill_prbs_update	<= 1;
 
 					//About to write last word? We're done
-					if(addr0 == 8'hfe) begin
+					if(addr0_adv == 8'hfe) begin
 						state			<= STATE_IDLE;
 						port0_done		<= 1;
 					end
@@ -181,12 +209,12 @@ module MemoryTester(
 
 				STATE_READ_P0: begin
 					port0_rd			<= 1;
-					cs0_n				<= 0;
-					addr0				<= addr0 + 1;
+					cs0_n_adv			<= 0;
+					addr0_adv			<= addr0_adv + 1;
 					p0_read_prbs_update	<= 1;
 
 					//About to read last word? We're done
-					if(addr0 == 8'hfe) begin
+					if(addr0_adv == 8'hfe) begin
 						state			<= STATE_IDLE;
 						port0_done_adv	<= 1;
 					end
@@ -198,14 +226,14 @@ module MemoryTester(
 		end
 
 		//Read results are captured on the rising edge but pipelined, so we see them the next internal clock cycle
-		//(falling edge of clk0)
-		if(clk0) begin
+		//(falling edge of clk0, but rising edge of clk0_adv)
+		if(!clk0_adv) begin
 
 			//Report failures
-			if(port0_rd_ff2 && (rdata0_ff != p0_read_prbs_out_ff) ) begin
+			if(port0_rd_ff3 && (rdata0_ff != p0_read_prbs_out_ff2) ) begin
 				port0_fail		<= 1;
-				port0_fail_addr	<= addr0_ff2;
-				port0_fail_mask	<= rdata0_ff ^ p0_read_prbs_out_ff;
+				port0_fail_addr	<= addr0_ff3;
+				port0_fail_mask	<= rdata0_ff ^ p0_read_prbs_out_ff2;
 			end
 
 		end
@@ -257,7 +285,7 @@ module MemoryTester(
 		read_port1_start_ff	<= read_port1_start;
 
 		//Start command can happen at an even OR odd cycle boundary
-		if(read_port1_start/*_ff*/)
+		if(read_port1_start_ff)
 			p1_busy			<= 1;
 
 		//Pipeline delay for signals used by read capture
@@ -351,27 +379,6 @@ module MemoryTester(
 		.update(p1_read_prbs_update),
 		.seed(prbs_seed),
 		.dout(p1_read_prbs_out)
-	);
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Debug logic analyzer
-
-	ila_0 ila(
-		.clk(clk),
-		.probe0(clk0),
-		.probe1(clk1_adv),
-		.probe2(read_port0_start),
-		.probe3(read_port1_start),
-		.probe4(rdata1_ff),
-		.probe5(p1_read_prbs_out_ff2),
-		.probe6(port1_rd_ff2),
-		.probe7(fill_start),
-		.probe8(addr0),
-		.probe9(addr1_adv),
-		.probe10(wdata0),
-		.probe11(we0_n),
-		.probe12(cs0_n),
-		.probe13(cs1_n_adv)
 	);
 
 endmodule
