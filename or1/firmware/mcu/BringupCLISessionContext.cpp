@@ -273,7 +273,7 @@ void BringupCLISessionContext::OnFrequencyPhaseShmoo(bool dualport)
 
 void BringupCLISessionContext::OnFrequencyVoltageShmoo(bool dualport)
 {
-	int phase = 11000;
+	int phase = 10000;
 
 	if(dualport)
 		g_uart->Printf("Running dual port operating frequency vs voltage shmoo with %d ps read capture delay\n", phase);
@@ -447,8 +447,8 @@ void BringupCLISessionContext::OnOperatingVoltageMap(bool dualport)
 	const int testvmax = 1800;
 	const int testvmin = 600;
 
-	const int mhz = 20;
-	const int capturedelay = 11000;
+	const int mhz = 30;
+	const int capturedelay = 10000;
 	ConfigureClock(mhz * 2 * 1000, capturedelay);
 	g_uart->Printf("Running operating voltage map at %d MHz, %d ps read capture delay\n", mhz, capturedelay);
 
@@ -547,7 +547,7 @@ void BringupCLISessionContext::OnOperatingVoltageMap(bool dualport)
 
 void BringupCLISessionContext::OnReadWriteShmoo()
 {
-	int phase = 11000;
+	int phase = 10000;
 	g_uart->Printf("Running simultaneous R+W operating frequency vs voltage shmoo with %d ps read capture delay\n", phase);
 
 	//Print header
